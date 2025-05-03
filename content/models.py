@@ -1,168 +1,329 @@
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.core.exceptions import ValidationError
+
+from taggit.managers import TaggableManager
 
 
-class InterfaceGroup(models.Model):
-    short_name = models.CharField(
-        verbose_name='Короткое название',
-        max_length=255,
-        unique=True,
-    )
+class InterfaceCatalogSection(models.Model):
     title = models.CharField(
-        verbose_name='Развёрнутое название',
+        verbose_name='Название Секции',
         max_length=255,
         unique=True,
     )
-    description = models.TextField(
-        verbose_name='Описание',
-        blank=True,
-    )
-    logo = models.ImageField(
-        verbose_name='Логотип',
-        upload_to='interfaces/',
-        blank=True,
-        null=True,
-    )
-    preview = models.ImageField(
-        verbose_name='Изображение',
-        upload_to='interfaces/',
-        blank=True,
-        null=True,
+    order_position = models.PositiveIntegerField(
+        verbose_name='Позиция Секции в каталоге',
+        help_text='Чем меньше, тем выше Секция в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
     )
 
     class Meta:
-        verbose_name = 'Группа Интерфейсов'
-        verbose_name_plural = 'Группы Интерфейсов'
+        verbose_name = 'Секция Интерфейсов'
+        verbose_name_plural = 'Секции Интерфейсов'
+        ordering = ('order_position',)
+
 
     def __str__(self):
-        return self.short_name
+        return self.title
 
 
 class Interface(models.Model):
-    short_name = models.CharField(
-        verbose_name='Короткое название',
-        max_length=255,
+    title = models.CharField(
+        verbose_name='Название',
+        max_length=50,
         unique=True,
     )
-    title = models.CharField(
-        verbose_name='Развёрнутое название',
+    subtitle = models.CharField(
+        verbose_name='Подзаголовок',
         max_length=255,
-        unique=True,
+        blank=True,
     )
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
     )
     logo = models.ImageField(
-        verbose_name='Логотип',
+        verbose_name='Лого',
         upload_to='interfaces/',
         blank=True,
         null=True,
     )
-    preview = models.ImageField(
-        verbose_name='Изображение',
+    illustration = models.ImageField(
+        verbose_name='Иллюстрация',
         upload_to='interfaces/',
         blank=True,
         null=True,
     )
-    groups = models.ManyToManyField(
-        InterfaceGroup,
-        verbose_name='Группы',
+    sections = models.ManyToManyField(
+        InterfaceCatalogSection,
+        verbose_name='Секции',
         related_name='interfaces',
+        through='InterfaceCatalog',
+        through_fields=('interface', 'section'),
         blank=True,
     )
 
     class Meta:
         verbose_name = 'Интерфейс'
         verbose_name_plural = 'Интерфейсы'
+        ordering = ('title',)
 
     def __str__(self):
-        return self.short_name
+        return self.title
+
+    @property
+    def ordered_sections(self):
+        return InterfaceCatalogSection.objects.filter(
+            interfacecatalog__interface=self
+        ).order_by('interfacecatalog__order_position')
 
 
-class UserType(models.Model):
-    role = models.CharField(
-        verbose_name='Роль',
+class InterfaceCatalog(models.Model):
+    interface = models.ForeignKey(
+        Interface,
+        verbose_name='Интерфейс',
+        related_name='interfaces',
+        on_delete=models.CASCADE,
+    )
+    section = models.ForeignKey(
+        InterfaceCatalogSection,
+        verbose_name='Секция Интерфейсов в Каталоге',
+        related_name='sections',
+        on_delete=models.CASCADE,
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Позиция Интерфейса в Секции',
+        help_text='Чем меньше, тем выше Интерфейс в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
+    class Meta:
+        verbose_name = 'Связь Интерфейса и Секции'
+        verbose_name_plural = 'Связи Интерфейсов и Секций'
+        ordering = ('order_position',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=['interface', 'section'],
+                name='unique_interface_section'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.interface} → {self.section}'
+
+
+class Role(models.Model):
+    interface = models.ForeignKey(
+        Interface,
+        verbose_name='Интерфейс',
+        related_name='roles',
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(
+        verbose_name='Название',
+        max_length=50,
+    )
+    subtitle = models.CharField(
+        verbose_name='Подзаголовок',
         max_length=255,
-        unique=True,
+        blank=True,
     )
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
     )
     logo = models.ImageField(
-        verbose_name='Логотип',
+        verbose_name='Лого',
         upload_to='user_types/',
         blank=True,
         null=True,
     )
-    image = models.ImageField(
-        verbose_name='Изображение',
-        upload_to='user_types/',
+    illustration = models.ImageField(
+        verbose_name='Иллюстрация',
+        upload_to='roles/',
         blank=True,
         null=True,
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше Роль в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
     )
 
     class Meta:
-        verbose_name = 'Тип пользователя'
-        verbose_name_plural = 'Типы пользователей'
+        verbose_name = 'Роль Пользователя'
+        verbose_name_plural = 'Роли Пользователей'
 
     def __str__(self):
-        return self.role
+        return f'{self.interface} - {self.title}'
 
 
 class Function(models.Model):
-    title = models.CharField(
-        verbose_name='Название',
-        max_length=255,
-        unique=True,
+    role = models.ForeignKey(
+        Role,
+        verbose_name='Роль Пользователя',
+        related_name='functions',
+        on_delete=models.CASCADE,
+    )
+    job = models.CharField(
+        verbose_name='Название Ключевой Функции',
+        max_length=50,
     )
     description = models.TextField(
-        verbose_name='Описание',
+        verbose_name='Описание Ключевой Функции',
         blank=True,
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше Функция в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
     )
 
     class Meta:
         verbose_name = 'Функция'
         verbose_name_plural = 'Функции'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['role', 'job'],
+                name='unique_role_function'
+            )
+        ]
+
+    def __str__(self):
+        return self.job
+
+
+class Story(models.Model):
+    function = models.ForeignKey(
+        Function,
+        verbose_name='Ключевая Функция',
+        related_name='stories',
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(
+        verbose_name='Название',
+        max_length=255,
+    )
+    got_wanted = models.BooleanField(
+        verbose_name='Пользователь получил желаемый результат',
+        help_text='Укажите, является данная История успешной или отказной.',
+    )
+    description = models.TextField(
+        verbose_name='Описание',
+        blank=True,
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше История в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
+
+    class Meta:
+        verbose_name = 'История'
+        verbose_name_plural = 'Истории'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['function', 'title'],
+                name='unique_function_story'
+            )
+        ]
 
     def __str__(self):
         return self.title
 
 
-class AntiPatternGroup(models.Model):
-    name = models.CharField(
-        verbose_name='Название',
-        max_length=255,
-        unique=True,
+class StoryContext(models.Model):
+    story = models.ForeignKey(
+        Story,
+        verbose_name='История',
+        related_name='context_points',
+        on_delete=models.CASCADE,
     )
-    description = models.TextField(
-        verbose_name='Описание',
-        blank=True,
+    text = models.CharField(
+        verbose_name='Когда',
+        help_text='Важный нюанс ситуации, в которой находится Пользователь.',
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше данная строка в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
     )
 
     class Meta:
-        verbose_name = 'Группа Анти-паттернов'
-        verbose_name_plural = 'Группы Анти-паттернов'
+        verbose_name = 'Cитуация'
+        verbose_name_plural = 'Предыстория'
 
     def __str__(self):
-        return self.name
+        return ''
+
+
+class StartPoint(models.Model):
+    story = models.OneToOneField(
+        Story,
+        verbose_name='История',
+        related_name='start_point',
+        on_delete=models.CASCADE,
+    )
+    text = models.CharField(
+        verbose_name='В момент начала',
+        max_length=255,
+    )
+
+    class Meta:
+        verbose_name = 'Старт'
+        verbose_name_plural = 'Старт'
+
+    def __str__(self):
+        return ''
+
+
+class StoryAcceptor(models.Model):
+    story = models.ForeignKey(
+        Story,
+        verbose_name='История',
+        related_name='acceptors',
+        on_delete=models.CASCADE,
+    )
+    text = models.CharField(
+        verbose_name='Акцептор',
+        max_length=255,
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше Акцептор в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
+
+    class Meta:
+        verbose_name = 'Условие'
+        verbose_name_plural = 'Условия'
+
+    def __str__(self):
+        return ''
 
 
 class AntiPattern(models.Model):
-    name = models.CharField(
+    title = models.CharField(
         verbose_name='Название',
-        max_length=255,
+        max_length=50,
         unique=True,
+    )
+    subtitle = models.CharField(
+        verbose_name='Подзаголовок',
+        max_length=255,
+        blank=True,
     )
     description = models.TextField(
         verbose_name='Описание',
         blank=True,
     )
-    groups = models.ManyToManyField(
-        AntiPatternGroup,
-        verbose_name='Группы',
-        related_name='anti_patterns',
+    tags = TaggableManager(
+        verbose_name='Теги',
         blank=True,
     )
 
@@ -171,23 +332,30 @@ class AntiPattern(models.Model):
         verbose_name_plural = 'Анти-паттерны'
 
     def __str__(self):
-        return self.name
+        return self.title
 
 
-class Example(models.Model):
+class AntiPatternExample(models.Model):
     anti_pattern = models.ForeignKey(
         AntiPattern,
         verbose_name='Анти-паттерн',
         related_name='examples',
         on_delete=models.CASCADE,
     )
-    name = models.CharField(
-        verbose_name='Название',
-        max_length=255,
+    description = models.TextField(
+        verbose_name='Описание Примера',
         blank=True,
     )
-    description = models.TextField(
-        verbose_name='Описание примера',
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше Пример в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
+    acceptors = models.ManyToManyField(
+        StoryAcceptor,
+        verbose_name='Акцепторы',
+        related_name='anti_pattern_examples',
         blank=True,
     )
 
@@ -195,182 +363,62 @@ class Example(models.Model):
         verbose_name = 'Пример'
         verbose_name_plural = 'Примеры'
 
-    def __str__(self):
-        groups = ''.join(str(group.name) for group in self.anti_pattern.groups.all())
-        return f'Группы Анти-паттернов: {groups}'
+    # def __str__(self):
+    #     catalogs = ''.join(str(catalog.title) for catalog in self.anti_pattern.catalogs.all())
+    #     return f'Группы Анти-паттернов: {catalogs}'
 
 
-SNIPPET_TYPE_CHOICES = [
-    ('bad', 'Плохо'),
-    ('good', 'Хорошо'),
-    ('acceptable', 'Допустимо'),
-    ('exception', 'Исключение'),
-    ('legacy', 'Наследство'),
+SNIPPET_FIX_STATUS_CHOICES = [
+    ('not_fixable', 'Неисправимо'),
+    ('fix_requiered', 'Требует исправления'),
+    ('fix_not_requiered', 'Не требует исправления'),
 ]
 
 class Snippet(models.Model):
     example = models.ForeignKey(
-        Example,
+        AntiPatternExample,
         verbose_name='Пример',
         related_name='snippets',
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
-    type = models.CharField(
-        verbose_name='Тип примера',
-        max_length=10,
-        choices=SNIPPET_TYPE_CHOICES,
-        blank=True,
+    anti_pattern_present = models.BooleanField(
+        verbose_name='Наличие Анти-паттерна',
+    )
+    fix_status = models.CharField(
+        verbose_name='Статус исправления',
+        max_length=20,
+        choices=SNIPPET_FIX_STATUS_CHOICES,
     )
     code = models.TextField(
         verbose_name='Код',
     )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очередь',
+        help_text='Чем меньше, тем выше Сниппет в выдаче.',
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
 
     class Meta:
-        verbose_name = 'Пример к Анти-паттерну'
+        verbose_name = 'Сниппет'
         verbose_name_plural = 'Сниппеты'
 
     def __str__(self):
-        return self.example.anti_pattern.name
+        return self.example.anti_pattern.title
 
-
-class Story(models.Model):
-    title = models.CharField(
-        verbose_name='Название',
-        max_length=255,
-    )
-    description = models.TextField(
-        verbose_name='Описание',
-        blank=True,
-    )
-    function = models.ForeignKey(
-        Function,
-        verbose_name='Ключевая Функция',
-        related_name='stories',
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-    user_type = models.ForeignKey(
-        UserType,
-        verbose_name='Роль Пользователя',
-        related_name='stories',
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-    interface = models.ForeignKey(
-        Interface,
-        verbose_name='Интерфейс',
-        related_name='stories',
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-    )
-
-    class Meta:
-        verbose_name = 'История'
-        verbose_name_plural = 'Истории'
-
-    def __str__(self):
-        return self.title
-
-
-class ContextPoint(models.Model):
-    story = models.ForeignKey(
-        Story,
-        verbose_name='История',
-        related_name='context_points',
-        on_delete=models.CASCADE,
-    )
-    text = models.TextField(
-        verbose_name='Когда',
-    )
-
-    class Meta:
-        verbose_name = 'Важный нюанс ситуации, в которой находится Пользователь'
-        verbose_name_plural = 'Предыстория'
-
-    def __str__(self):
-        return ''
-
-
-class StartPoint(models.Model):
-    story = models.ForeignKey(
-        Story,
-        verbose_name='История',
-        related_name='start_points',
-        on_delete=models.CASCADE,
-    )
-    text = models.TextField(
-        verbose_name='Начало',
-    )
-
-    class Meta:
-        verbose_name = 'Описание'
-        verbose_name_plural = 'Старт'
-
-    def __str__(self):
-        return ''
-
-
-class SuccessPoint(models.Model):
-    story = models.ForeignKey(
-        Story,
-        verbose_name='История',
-        related_name='success_points',
-        on_delete=models.CASCADE,
-    )
-    text = models.TextField(
-        verbose_name='Критерий успеха',
-    )
-    anti_pattern = models.ManyToManyField(
-        AntiPattern,
-        verbose_name='Анти-паттерны',
-        related_name='success_points',
-        blank=True,
-    )
-    # example = models.ManyToManyField(
-    #     Example,
-    #     verbose_name='Примеры',
-    #     related_name='success_points',
-    #     blank=True,
-    # )
-
-    class Meta:
-        verbose_name = 'Условие успеха'
-        verbose_name_plural = 'Успех'
-
-    def __str__(self):
-        return ''
-
-
-class RefusalPoint(models.Model):
-    story = models.ForeignKey(
-        Story,
-        verbose_name='История',
-        related_name='refusal_points',
-        on_delete=models.CASCADE,
-    )
-    text = models.TextField(
-        verbose_name='Критерий отказа',
-    )
-    anti_pattern = models.ManyToManyField(
-        AntiPattern,
-        verbose_name='Анти-паттерны',
-        related_name='refusal_points',
-        blank=True,
-    )
-    # example = models.ManyToManyField(
-    #     Example,
-    #     verbose_name='Примеры',
-    #     related_name='refusal_points',
-    #     blank=True,
-    # )
-
-    class Meta:
-        verbose_name = 'Условие отказа'
-        verbose_name_plural = 'Отказ'
-
-    def __str__(self):
-        return ''
+    @property
+    def status_label(self):
+        """
+        Вычисляемое свойство status_label, зависящее
+        от anti_pattern_present и fix_status.
+        """
+        mapping = {
+            (True, 'not_fixable'): 'Исключение',
+            (True, 'fix_required'): 'Плохо',
+            (True, 'fix_not_required'): 'Допустимо',
+            (False, 'fix_not_required'): 'Хорошо',
+        }
+        return mapping.get(
+            (self.anti_pattern_present, self.fix_status),
+            ''
+        )

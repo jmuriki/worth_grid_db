@@ -3,15 +3,18 @@ import re
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
-from content.models import AntiPatternGroup, AntiPattern, Example, Snippet
+from content.models import (
+    AntiPattern,
+    AntiPatternExample,
+    Snippet,
+)
 
 
 SNIPPET_MAP = {
-    'Плохо': 'bad',
-    'Хорошо': 'good',
-    'Допустимо': 'acceptable',
-    'Исключение': 'exception',
-    'Наследство': 'legacy',
+    'Исключение': (True, 'not_fixable'),
+    'Плохо': (True, 'fix_required'),
+    'Допустимо': (True, 'fix_not_required'),
+    'Хорошо': (False, 'fix_not_required'),
 }
 
 
@@ -37,22 +40,17 @@ class Command(BaseCommand):
                 lines = file.read().splitlines()
 
             # Парсим название Анти-паттерна из названия .md файла
-            anti_pattern_name = md_path.stem
-            anti_pattern, created = AntiPattern.objects.get_or_create(name=anti_pattern_name)
-            # if created:
-            #     self.stdout.write(f"Создан Анти-паттерн «{anti_pattern_name}»")
-            # else:
-            #     self.stdout.write(f"Обновлён Анти-паттерн «{anti_pattern_name}»")
+            anti_pattern_title = md_path.stem
+            anti_pattern, created = AntiPattern.objects.get_or_create(title=anti_pattern_title)
 
             # Парсим Группу Анти-паттернов из имени папки
-            group_name = md_path.parent.name
-            group, _ = AntiPatternGroup.objects.get_or_create(name=group_name)
-            anti_pattern.groups.add(group)
+            tag_name = md_path.parent.name
+            anti_pattern.tags.add(tag_name)
 
             state = None  # 'anti_pattern_description' / 'example_description' / 'snippet_type' / 'snippet' / 'snippet_lines'
 
             anti_pattern_description_lines = []
-            example_name = None
+            example_title = None
             example_description_lines = []
             snippet_lines = []
             snippet_type = None
@@ -74,15 +72,16 @@ class Command(BaseCommand):
                 # Парсим описание Примера
                 before_favicon, example_favicon, after_favicon = line.partition('💡')
                 if example_favicon:
-                    example_name = after_favicon.strip()
+                    match = re.search(r'\d+', after_favicon.strip())
+                    order_position = int(match.group()) if match else 0
                     state = 'example_description'
                     continue
                 elif state == 'example_description':
                     if line.startswith('**'):
-                        example, _ = Example.objects.get_or_create(
+                        example, _ = AntiPatternExample.objects.get_or_create(
                             anti_pattern=anti_pattern,
-                            name=example_name,
-                            description="\n".join(example_description_lines).strip()
+                            description="\n".join(example_description_lines).strip(),
+                            order_position=order_position,
                         )
                         example_description_lines = []
                         state = 'snippet_type'
@@ -100,6 +99,7 @@ class Command(BaseCommand):
                             f"{md_path}:{index+1}: неизвестный тип «{snippet_map_ru}», пропускаем"
                         ))
                         snippet_type = ''
+                    print(snippet_type)
                     state = 'snippet'
                 elif state == 'snippet' and line.strip().startswith('```'):
                     state = 'snippet_lines'
@@ -108,7 +108,8 @@ class Command(BaseCommand):
                 elif state == 'snippet_lines' and '```' in line:
                     Snippet.objects.get_or_create(
                         example=example,
-                        type=snippet_type,
+                        anti_pattern_present=snippet_type[0],
+                        fix_status=snippet_type[1],
                         code="\n".join(snippet_lines).strip(),
                     )
                     snippet_lines = []

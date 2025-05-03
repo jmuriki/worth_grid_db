@@ -5,21 +5,21 @@ from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from content.models import (
-    InterfaceGroup,
+    InterfaceCatalogSection,
+    InterfaceCatalog,
     Interface,
-    UserType,
+    Role,
     Function,
     Story,
-    ContextPoint,
+    StoryContext,
     StartPoint,
-    SuccessPoint,
-    RefusalPoint,
+    StoryAcceptor,
 )
 
 
 RE_INTERFACE = re.compile(r'^##.*?Интерфейс\s*"(?P<title>[^"]+)"', re.MULTILINE)
 RE_USER_TYPE = re.compile(r'^##\s+👤\s+(?P<role>.+)$', re.MULTILINE)
-RE_FUNCTION = re.compile(r'^###\s+𝑓\s+(?P<title>.+)$', re.MULTILINE)
+RE_FUNCTION = re.compile(r'^###\s+𝑓\s+(?P<job>.+)$', re.MULTILINE)
 RE_STORY = re.compile(r'^####\s+✔\s+(?P<title>.+)$', re.MULTILINE)
 
 
@@ -45,11 +45,11 @@ class Command(BaseCommand):
             with open(md_path, 'r', encoding='utf-8') as file:
                 text = file.read().splitlines()
 
-            interface_group_name = md_path.parent.name
-            group, _ = InterfaceGroup.objects.get_or_create(short_name=interface_group_name, title=interface_group_name)
+            interface_catalog_section_name = md_path.parent.name
+            section, _ = InterfaceCatalogSection.objects.get_or_create(title=interface_catalog_section_name)
             
             interface = None
-            user_type = None
+            role = None
             function = None
             story = None
             is_context = None
@@ -62,19 +62,19 @@ class Command(BaseCommand):
                     interface_md_title = RE_INTERFACE.search(line)
                     if not interface_md_title:
                         continue
-                    interface_title = interface_md_title.group('title')
-                    interface_name = md_path.stem
-                    interface, _ = Interface.objects.get_or_create(short_name=interface_name, title=interface_title)
-                    interface.groups.add(group)
+                    interface_subtitle = interface_md_title.group('title')
+                    interface_title = md_path.stem
+                    interface, _ = Interface.objects.get_or_create(title=interface_title, subtitle=interface_subtitle)
+                    interface.sections.add(section)
 
-                md_user_type = RE_USER_TYPE.search(line)
-                if md_user_type:
-                    user_type, _ = UserType.objects.get_or_create(role=md_user_type.group('role'))
+                md_role = RE_USER_TYPE.search(line)
+                if md_role:
+                    role, _ = Role.objects.get_or_create(interface=interface, title=md_role.group('role'))
 
                 md_function = RE_FUNCTION.search(line)
                 if md_function:
-                    func_title = md_function.group('title').strip()
-                    function, _ = Function.objects.get_or_create(title=func_title)
+                    function_job = md_function.group('job').strip()
+                    function, _ = Function.objects.get_or_create(role=role, job=function_job)
 
                 md_story = RE_STORY.search(line)
                 if md_story:
@@ -82,15 +82,14 @@ class Command(BaseCommand):
                     story, _ = Story.objects.get_or_create(
                         title=story_title,
                         function=function,
-                        user_type=user_type,
-                        interface=interface,
+                        got_wanted=True,
                     )
 
                 if 'Ситуация' in line:
                     is_context = True
                     continue
                 if is_context and len(line) > 3:
-                    ContextPoint.objects.get_or_create(story=story, text=line.lstrip('>- [ ] '))
+                    StoryContext.objects.get_or_create(story=story, text=line.lstrip('>- [ ] '))
                 elif is_context and len(line) < 3:
                     is_context = None
 
@@ -104,17 +103,21 @@ class Command(BaseCommand):
 
                 if 'Успех' in line:
                     is_success = True
+                    story.got_wanted = True
+                    story.save()
                     continue
                 if is_success and len(line) > 3:
-                    SuccessPoint.objects.get_or_create(story=story, text=line.lstrip('>- [ ] '))
+                    StoryAcceptor.objects.get_or_create(story=story, text=line.lstrip('>- [ ] '))
                 elif is_success and len(line) < 3:
                     is_success = None
 
                 if 'Отказ' in line:
                     is_refusal = True
+                    story.got_wanted = False
+                    story.save()
                     continue
                 if is_refusal and len(line) > 3:
-                    RefusalPoint.objects.get_or_create(story=story, text=line.lstrip('>- [ ] '))
+                    StoryAcceptor.objects.get_or_create(story=story, text=line.lstrip('>- [ ] '))
                 elif is_refusal and len(line) < 3:
                     is_refusal = None
 
