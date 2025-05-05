@@ -166,3 +166,5 @@ static/
 staticfiles/
 migrations/
 archive/
+ИНТЕРФЕЙСЫ/
+АНТИ-ПАТТЕРНЫ/
