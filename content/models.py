@@ -4,22 +4,22 @@ from django.db import models
 from taggit.managers import TaggableManager
 
 
-class InterfaceCatalogSection(models.Model):
+class InterfaceSubCatalog(models.Model):
     title = models.CharField(
-        verbose_name='Название Секции',
-        max_length=255,
+        verbose_name='Название Подкаталога',
+        max_length=50,
         unique=True,
     )
     order_position = models.PositiveIntegerField(
-        verbose_name='Позиция Секции в каталоге',
-        help_text='Чем меньше, тем выше Секция в выдаче.',
+        verbose_name='Позиция Подкаталога в Каталоге',
+        help_text='Чем меньше, тем выше Подкаталог в Каталоге.',
         default=1,
         validators=[MinValueValidator(1)],
     )
 
     class Meta:
-        verbose_name = 'Секция Интерфейсов'
-        verbose_name_plural = 'Секции Интерфейсов'
+        verbose_name = 'Подкаталог Интерфейсов'
+        verbose_name_plural = 'Подкаталоги Интерфейсов'
         ordering = ('order_position',)
 
 
@@ -35,7 +35,7 @@ class Interface(models.Model):
     )
     subtitle = models.CharField(
         verbose_name='Подзаголовок',
-        max_length=255,
+        max_length=100,
         blank=True,
     )
     description = models.TextField(
@@ -54,12 +54,12 @@ class Interface(models.Model):
         blank=True,
         null=True,
     )
-    sections = models.ManyToManyField(
-        InterfaceCatalogSection,
-        verbose_name='Секции',
+    subcatalogs = models.ManyToManyField(
+        InterfaceSubCatalog,
+        verbose_name='Подкаталоги',
         related_name='interfaces',
         through='InterfaceCatalog',
-        through_fields=('interface', 'section'),
+        through_fields=('interface', 'subcatalog'),
         blank=True,
     )
 
@@ -72,8 +72,8 @@ class Interface(models.Model):
         return self.title
 
     @property
-    def ordered_sections(self):
-        return InterfaceCatalogSection.objects.filter(
+    def ordered_subcatalogs(self):
+        return InterfaceSubCatalog.objects.filter(
             interfacecatalog__interface=self
         ).order_by('interfacecatalog__order_position')
 
@@ -85,31 +85,31 @@ class InterfaceCatalog(models.Model):
         related_name='interfaces',
         on_delete=models.CASCADE,
     )
-    section = models.ForeignKey(
-        InterfaceCatalogSection,
-        verbose_name='Секция Интерфейсов в Каталоге',
-        related_name='sections',
+    subcatalog = models.ForeignKey(
+        InterfaceSubCatalog,
+        verbose_name='Подкаталог Интерфейсов',
+        related_name='subcatalogs',
         on_delete=models.CASCADE,
     )
     order_position = models.PositiveIntegerField(
-        verbose_name='Позиция Интерфейса в Секции',
-        help_text='Чем меньше, тем выше Интерфейс в выдаче.',
+        verbose_name='Позиция Интерфейса в Подкаталоге',
+        help_text='Чем меньше, тем выше Интерфейс в Подкаталоге.',
         default=1,
         validators=[MinValueValidator(1)],
     )
     class Meta:
-        verbose_name = 'Связь Интерфейса и Секции'
-        verbose_name_plural = 'Связи Интерфейсов и Секций'
+        verbose_name = 'Связь Интерфейса и Подкаталога'
+        verbose_name_plural = 'Связи Интерфейсов и Подкаталогов'
         ordering = ('order_position',)
         constraints = [
             models.UniqueConstraint(
-                fields=['interface', 'section'],
-                name='unique_interface_section'
+                fields=['interface', 'subcatalog'],
+                name='unique_interface_subcatalog'
             )
         ]
 
     def __str__(self):
-        return f'{self.interface} → {self.section}'
+        return f'{self.interface} → {self.order_position} → {self.subcatalog}'
 
 
 class Role(models.Model):
@@ -125,7 +125,7 @@ class Role(models.Model):
     )
     subtitle = models.CharField(
         verbose_name='Подзаголовок',
-        max_length=255,
+        max_length=100,
         blank=True,
     )
     description = models.TextField(
@@ -146,17 +146,17 @@ class Role(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше Роль в выдаче.',
+        help_text='Чем меньше, тем выше Роль в Интерфейсе.',
         default=1,
         validators=[MinValueValidator(1)],
     )
 
     class Meta:
-        verbose_name = 'Роль Пользователя'
-        verbose_name_plural = 'Роли Пользователей'
+        verbose_name = 'Роль'
+        verbose_name_plural = 'Роли'
 
     def __str__(self):
-        return f'{self.interface} - {self.title}'
+        return self.title
 
 
 class Function(models.Model):
@@ -176,7 +176,7 @@ class Function(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше Функция в выдаче.',
+        help_text='Чем меньше, тем выше Функция в Роли.',
         default=1,
         validators=[MinValueValidator(1)],
     )
@@ -203,8 +203,8 @@ class Story(models.Model):
         on_delete=models.CASCADE,
     )
     title = models.CharField(
-        verbose_name='Название',
-        max_length=255,
+        verbose_name='Название Истории',
+        max_length=50,
     )
     got_wanted = models.BooleanField(
         verbose_name='Пользователь получил желаемый результат',
@@ -245,6 +245,7 @@ class StoryContext(models.Model):
     text = models.CharField(
         verbose_name='Когда',
         help_text='Важный нюанс ситуации, в которой находится Пользователь.',
+        max_length=100,
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
@@ -258,7 +259,7 @@ class StoryContext(models.Model):
         verbose_name_plural = 'Предыстория'
 
     def __str__(self):
-        return ''
+        return self.text
 
 
 class StartPoint(models.Model):
@@ -270,7 +271,7 @@ class StartPoint(models.Model):
     )
     text = models.CharField(
         verbose_name='В момент начала',
-        max_length=255,
+        max_length=100,
     )
 
     class Meta:
@@ -278,7 +279,7 @@ class StartPoint(models.Model):
         verbose_name_plural = 'Старт'
 
     def __str__(self):
-        return ''
+        return self.text
 
 
 class StoryAcceptor(models.Model):
@@ -290,7 +291,7 @@ class StoryAcceptor(models.Model):
     )
     text = models.CharField(
         verbose_name='Акцептор',
-        max_length=255,
+        max_length=100,
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
@@ -304,7 +305,7 @@ class StoryAcceptor(models.Model):
         verbose_name_plural = 'Условия'
 
     def __str__(self):
-        return ''
+        return self.text
 
 
 class AntiPattern(models.Model):
@@ -315,7 +316,7 @@ class AntiPattern(models.Model):
     )
     subtitle = models.CharField(
         verbose_name='Подзаголовок',
-        max_length=255,
+        max_length=100,
         blank=True,
     )
     description = models.TextField(
@@ -348,7 +349,7 @@ class AntiPatternExample(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше Пример в выдаче.',
+        help_text='Чем меньше, тем выше Пример в Анти-паттерне.',
         default=1,
         validators=[MinValueValidator(1)],
     )
@@ -363,15 +364,14 @@ class AntiPatternExample(models.Model):
         verbose_name = 'Пример'
         verbose_name_plural = 'Примеры'
 
-    # def __str__(self):
-    #     catalogs = ''.join(str(catalog.title) for catalog in self.anti_pattern.catalogs.all())
-    #     return f'Группы Анти-паттернов: {catalogs}'
+    def __str__(self):
+        return f'Пример к Анти-паттерну "{self.anti_pattern.title}"'
 
 
 SNIPPET_FIX_STATUS_CHOICES = [
     ('not_fixable', 'Неисправимо'),
-    ('fix_requiered', 'Требует исправления'),
-    ('fix_not_requiered', 'Не требует исправления'),
+    ('fix_required', 'Требует исправления'),
+    ('fix_not_required', 'Не требует исправления'),
 ]
 
 class Snippet(models.Model):
@@ -389,6 +389,11 @@ class Snippet(models.Model):
         max_length=20,
         choices=SNIPPET_FIX_STATUS_CHOICES,
     )
+    lang_ident = models.CharField(
+        verbose_name='Идентификатор языка',
+        max_length=20,
+        blank=True,
+    )
     code = models.TextField(
         verbose_name='Код',
     )
@@ -404,21 +409,17 @@ class Snippet(models.Model):
         verbose_name_plural = 'Сниппеты'
 
     def __str__(self):
-        return self.example.anti_pattern.title
+        return f'Пример к Анти-паттерну "{self.example.anti_pattern.title}"'
 
     @property
     def status_label(self):
-        """
-        Вычисляемое свойство status_label, зависящее
-        от anti_pattern_present и fix_status.
-        """
-        mapping = {
+        status_labels_mapping = {
             (True, 'not_fixable'): 'Исключение',
             (True, 'fix_required'): 'Плохо',
             (True, 'fix_not_required'): 'Допустимо',
             (False, 'fix_not_required'): 'Хорошо',
         }
-        return mapping.get(
+        return status_labels_mapping.get(
             (self.anti_pattern_present, self.fix_status),
             ''
         )

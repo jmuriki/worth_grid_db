@@ -1,12 +1,13 @@
+import nested_admin
+
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
 from django.utils.html import format_html
-
-from adminsortable2.admin import SortableAdminMixin, SortableInlineAdminMixin
+from django.utils.safestring import mark_safe
 
 from .models import (
-    InterfaceCatalogSection,
+    InterfaceSubCatalog,
     InterfaceCatalog,
     Interface,
     Role,
@@ -26,98 +27,80 @@ admin.site.site_title = "Ценностная сетка"
 admin.site.index_title = "Административная панель"
 
 
-SINGLE_LINE_TEXT_OVERRIDE = {
-    models.TextField: {'widget': TextInput(attrs={'size': 80})},
-}
+CHAR_FIELD_LINE_OVERRIDE = {models.CharField: {'widget': TextInput(attrs={'size': 100})}}
+# SINGLE_LINE_TEXT_OVERRIDE = {models.TextField: {'widget': TextInput(attrs={'size': 100})}}
 
 
 class InterfaceInline(admin.TabularInline):
-    model = Interface.sections.through
+    model = Interface.subcatalogs.through
     extra = 1
-    verbose_name = "Интерфейс"
-    verbose_name_plural = "Интерфейсы"
 
-# class InterfaceCatalogInline(admin.TabularInline):
-#     model = InterfaceCatalog
-#     extra = 0
-#     fields = ('interface', 'interface_position',)
-#     sortable_field_name = 'interface_position'
+class InterfaceCatalogInline(admin.TabularInline):
+    model = InterfaceCatalog
+    fk_name = 'interface'
+    extra = 0
+    raw_id_fields = ('subcatalog',)
+    ordering = ('order_position',)
+
+class FunctionInline(admin.TabularInline):
+    model = Function
+    extra = 0
+    fields = ('order_position', 'job', 'description',)
+    ordering = ('order_position',)
+
+class StoryInline(admin.TabularInline):
+    model = Story
+    extra = 0
+    fields = ('order_position', 'title', 'got_wanted', 'description',)
+    ordering = ('order_position',)
+
+class StoryContextInline(admin.TabularInline):
+    model = StoryContext
+    extra = 0
+    fields = ('order_position', 'text',)
+    ordering = ('order_position',)
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
+
+class StartPointInline(admin.TabularInline):
+    model = StartPoint
+    extra = 1
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
 class StoryAcceptorInline(admin.TabularInline):
     model = StoryAcceptor
-    extra = 1
-    verbose_name = "Анти-паттерн"
-    verbose_name_plural = "Анти-паттерны"
+    extra = 0
+    fields = ('order_position', 'text',)
+    ordering = ('order_position',)
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
-# class AntiPatternInline(admin.TabularInline):
-#     model = AntiPattern.sections.through
-#     extra = 1
-#     verbose_name = "Анти-паттерн"
-#     verbose_name_plural = "Анти-паттерны"
-
-
-class StoryInline(admin.StackedInline):
-    model = Story
-    extra = 1
-    formfield_overrides = SINGLE_LINE_TEXT_OVERRIDE
-
-class StoryContextInline(admin.StackedInline):
-    model = StoryContext
-    extra = 1
-    formfield_overrides = SINGLE_LINE_TEXT_OVERRIDE
-
-class StartPointInline(admin.StackedInline):
-    model = StartPoint
-    extra = 1
-    formfield_overrides = SINGLE_LINE_TEXT_OVERRIDE
-
-class StoryAcceptorInline(admin.StackedInline):
-    model = StoryAcceptor
-    extra = 1
-    formfield_overrides = SINGLE_LINE_TEXT_OVERRIDE
-
-# class AntiPatternExampleInline(admin.StackedInline):
-#     model = AntiPatternExample
-#     extra = 1
-
-class SnippetInline(admin.StackedInline):
+class SnippetInline(nested_admin.NestedTabularInline):
     model = Snippet
-    extra = 1
+    extra = 0
+    fields = ('order_position', 'anti_pattern_present', 'fix_status', 'lang_ident', 'code',)
+    ordering = ('order_position',)
 
-# class StoryAcceptorPatternInline(admin.TabularInline):
-#     model = StoryAcceptor._meta.get_field('anti_pattern_examples').remote_field.through
-
-#     fk_name  = 'anti_pattern_examples'
-#     extra = 1
-#     verbose_name = 'Нарушенный Акцептор'
-#     verbose_name_plural = 'Нарушенные Акцепторы'
-
-#     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-#         formfield = super().formfield_for_foreignkey(db_field, request, **kwargs)
-#         if db_field.name == 'anti_pattern_examples':
-#             formfield.label_from_instance = lambda obj: (
-#                 f"{obj.story.function.role.interface.title} — "
-#                 f"{obj.story.function.title} — "
-#                 f"{obj.story.title} — "
-#                 f"{obj.text}"
-#             )
-#         return formfield
+class AntiPatternExampleInline(nested_admin.NestedTabularInline):
+    model = AntiPatternExample
+    extra = 0
+    fields = ('order_position', 'description', 'acceptors',)
+    raw_id_fields = ('acceptors',)
+    inlines = [SnippetInline,]
 
 
-class InterfaceCatalogSectionFilter(admin.SimpleListFilter):
+class InterfaceSubCatalogFilter(admin.SimpleListFilter):
     title = 'Каталоги Интерфейсов'
-    parameter_name = 'sections'
+    parameter_name = 'subcatalogs'
 
     def lookups(self, request, model_admin):
-        sections = InterfaceCatalogSection.objects.all().order_by('title')
-        return [(section.id, section.title) for section in sections]
+        subcatalogs = InterfaceSubCatalog.objects.all().order_by('title')
+        return [(subcatalog.id, subcatalog.title) for subcatalog in subcatalogs]
 
     def queryset(self, request, queryset):
         if self.value():
-            if hasattr(queryset.model, 'sections'):
-                return queryset.filter(sections__id=self.value())
+            if hasattr(queryset.model, 'subcatalogs'):
+                return queryset.filter(subcatalogs__id=self.value())
             elif hasattr(queryset.model, 'stories'):
-                return queryset.filter(stories__interface__sections__id=self.value()).distinct()
+                return queryset.filter(stories__interface__subcatalogs__id=self.value()).distinct()
         return queryset
 
 class InterfaceFilter(admin.SimpleListFilter):
@@ -133,19 +116,6 @@ class InterfaceFilter(admin.SimpleListFilter):
             return queryset.filter(interface__id=self.value())
         return queryset
 
-# class FunctionFilter(admin.SimpleListFilter):
-#     title = 'Ключевые Функции'
-#     parameter_name = 'function'
-
-#     def lookups(self, request, model_admin):
-#         functions = Function.objects.all().order_by('job')
-#         return [(function.id, function.job) for function in functions]
-
-#     def queryset(self, request, queryset):
-#         if self.value():
-#             return queryset.filter(function__id=self.value())
-#         return queryset
-
 class AntiPatternFilter(admin.SimpleListFilter):
     title = 'Анти-паттерны'
     parameter_name = 'antipatterns'
@@ -160,18 +130,13 @@ class AntiPatternFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(Interface)
-class InterfaceAdmin(admin.ModelAdmin):
-    list_display = ('title', 'subtitle', 'description',)
-    search_fields = ('title', 'subtitle')
-    list_filter = (InterfaceCatalogSectionFilter,)
-
-
-@admin.register(InterfaceCatalogSection)
-class InterfaceCatalogSectionAdmin(admin.ModelAdmin):
-    list_display   = ('title', 'get_interfaces')
-    search_fields  = ('title',)
+@admin.register(InterfaceSubCatalog)
+class InterfaceSubCatalogAdmin(admin.ModelAdmin):
+    list_display   = ('title', 'get_interfaces', 'order_position',)
+    search_fields  = ('title', 'interfaces__title')
     inlines = (InterfaceInline,)
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_interfaces(self, obj):
         interfaces = obj.interfaces.all()
@@ -180,23 +145,37 @@ class InterfaceCatalogSectionAdmin(admin.ModelAdmin):
     get_interfaces.short_description = 'Интерфейсы'
 
 
+@admin.register(Interface)
+class InterfaceAdmin(admin.ModelAdmin):
+    list_display = ('title', 'subtitle', 'description',)
+    search_fields = ('title', 'subtitle')
+    list_filter = (InterfaceSubCatalogFilter,)
+    inlines = (InterfaceCatalogInline,)
+    
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
+
+
 @admin.register(Role)
 class RoleAdmin(admin.ModelAdmin):
-    list_display = ('title', 'interface', 'description',)
-    fields = ('title', 'position')
-    sortable_field_name = 'position'
+    list_display = ('title', 'subtitle', 'interface', 'order_position',)
     search_fields = ('title',)
     list_filter = (InterfaceFilter,)
+    inlines = (FunctionInline,)
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
 
 @admin.register(Function)
 class FunctionAdmin(admin.ModelAdmin):
-    list_display = ('job', 'get_role', 'get_interfaces', 'description',)
+    list_display = ('job', 'get_role', 'get_interfaces', 'order_position',)
     search_fields = ('job',)
     list_filter = ('role', 'role__interface')
+    raw_id_fields = ('role',)
     inlines = (
         StoryInline,
     )
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_role(self, obj):
         return obj.role.title
@@ -209,14 +188,17 @@ class FunctionAdmin(admin.ModelAdmin):
 
 @admin.register(Story)
 class StoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'function', 'get_role', 'get_interface')
+    list_display = ('title', 'function', 'get_role', 'get_interface', 'order_position',)
     search_fields = ('title',)
     list_filter = ('function__role__interface', 'function__role', 'function',)
+    raw_id_fields = ('function',)
     inlines = (
         StoryContextInline,
         StartPointInline,
         StoryAcceptorInline,
     )
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_role(self, obj):
         return obj.function.role.title
@@ -232,31 +214,78 @@ class StoryAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+@admin.register(StoryAcceptor)
+class StoryAcceptorAdmin(admin.ModelAdmin):
+    list_display = (
+        'get_interface',
+        'get_role',
+        'get_job',
+        'get_story',
+        'text',
+    )
+
+    list_select_related = ('story__function__role__interface',)
+
+    list_filter = (
+        ('story__function__role__interface', admin.RelatedOnlyFieldListFilter),
+        ('story__function__role', admin.RelatedOnlyFieldListFilter),
+        'story__function__job',
+        ('story', admin.RelatedOnlyFieldListFilter),
+    )
+
+    raw_id_fields = ('story',)
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
+
+    def get_interface(self, obj):
+        return obj.story.function.role.interface.title
+    get_interface.short_description = 'Интерфейс'
+    get_interface.admin_order_field = 'story__function__role__interface__title'
+
+    def get_role(self, obj):
+        return obj.story.function.role.title
+    get_role.short_description = 'Роль'
+    get_role.admin_order_field = 'story__function__role__title'
+
+    def get_job(self, obj):
+        return obj.story.function.job
+    get_job.short_description = 'Ключевая Функция'
+    get_job.admin_order_field = 'story__function__job'
+
+    def get_story(self, obj):
+        return obj.story.title
+    get_story.short_description = 'Типичная История'
+    get_story.admin_order_field = 'story__title'
+
+
 @admin.register(AntiPattern)
-class AntiPatternAdmin(admin.ModelAdmin):
-    list_display = ('title', 'get_tags', 'subtitle',)
+class AntiPatternAdmin(nested_admin.NestedModelAdmin):
+    list_display = ('title', 'subtitle', 'get_tags',)
     search_fields  = ('title', 'tags__name',)
     list_filter = ('tags', )
     list_per_page = 20
+    inlines = (AntiPatternExampleInline,)
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        widget = form.base_fields['tags'].widget
+        widget.attrs.update({'style': 'width: 61em'})
+        return form
 
     def get_tags(self, obj):
         return ", ".join(tag.name for tag in obj.tags.all())
     get_tags.short_description = 'Теги'
 
 
-SNIPPET_FIX_STATUS_CHOICES = [
-    ('not_fixable', 'Неисправимо'),
-    ('fix_requiered', 'Требует исправления'),
-    ('fix_not_requiered', 'Не требует исправления'),
-]
-
 @admin.register(AntiPatternExample)
 class AntiPatternExampleAdmin(admin.ModelAdmin):
     list_display = ('anti_pattern', 'description', 'get_snippet_codes')
     list_filter = (AntiPatternFilter,)
-    inlines = (
-        SnippetInline,
-    )
+    raw_id_fields = ('anti_pattern', 'acceptors',)
+    ordering = ('order_position',)
+    inlines = (SnippetInline,)
     list_per_page = 7
 
     def get_snippet_codes(self, obj):
@@ -268,10 +297,10 @@ class AntiPatternExampleAdmin(admin.ModelAdmin):
             format_html(
                 "<div><strong>{}:</strong><br><pre><code>{}</code></pre></div>",
                 snippet.status_label,
-                snippet.code.strip().replace('{', '&lbrace;').replace('}', '&rbrace;')
+                snippet.code.strip()
             ) for snippet in snippets
         ]
-        return format_html("".join(codes))
+        return mark_safe("".join(codes))
     get_snippet_codes.short_description = 'Сниппеты'
 
 
