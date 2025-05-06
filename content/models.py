@@ -216,7 +216,7 @@ class Story(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше История в выдаче.',
+        help_text='Чем меньше, тем выше История в Функции.',
         default=1,
         validators=[MinValueValidator(1)],
     )
@@ -249,7 +249,7 @@ class StoryContext(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше данная строка в выдаче.',
+        help_text='Чем меньше, тем выше в списке данная строка.',
         default=1,
         validators=[MinValueValidator(1)],
     )
@@ -295,7 +295,7 @@ class StoryAcceptor(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше Акцептор в выдаче.',
+        help_text='Чем меньше, тем выше в списке данный Акцептор.',
         default=1,
         validators=[MinValueValidator(1)],
     )
@@ -399,7 +399,7 @@ class Snippet(models.Model):
     )
     order_position = models.PositiveIntegerField(
         verbose_name='Очередь',
-        help_text='Чем меньше, тем выше Сниппет в выдаче.',
+        help_text='Чем меньше, тем выше Сниппет в Примере.',
         default=1,
         validators=[MinValueValidator(1)],
     )
