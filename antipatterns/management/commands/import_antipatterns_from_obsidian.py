@@ -3,7 +3,8 @@ import re
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
-from content.models import (
+
+from antipatterns.models import (
     AntiPattern,
     AntiPatternExample,
     Snippet,
@@ -54,6 +55,7 @@ class Command(BaseCommand):
             example_description_lines = []
             snippet_lines = []
             snippet_type = None
+            lang_ident = ''
 
             for index, line in enumerate(lines):
 
@@ -99,19 +101,32 @@ class Command(BaseCommand):
                             f"{md_path}:{index+1}: неизвестный тип «{snippet_map_ru}», пропускаем"
                         ))
                         snippet_type = ''
-                    print(snippet_type)
                     state = 'snippet'
                 elif state == 'snippet' and line.strip().startswith('```'):
                     state = 'snippet_lines'
+                    lang_ident = line.replace('```', '')
                 elif state == 'snippet_lines' and '```' not in line:
                     snippet_lines.append(line.replace('\t', '    '))
                 elif state == 'snippet_lines' and '```' in line:
-                    Snippet.objects.get_or_create(
+                    snippet, _ = Snippet.objects.get_or_create(
                         example=example,
                         anti_pattern_present=snippet_type[0],
                         fix_status=snippet_type[1],
+                        lang_ident=lang_ident,
                         code="\n".join(snippet_lines).strip(),
                     )
+
+                    # Определяем очередь Сниппета в Примере
+                    if snippet.status_label == 'Плохо':
+                        snippet.order_position = 1
+                    elif snippet.status_label == 'Допустимо':
+                        snippet.order_position = 2
+                    elif snippet.status_label == 'Хорошо':
+                        snippet.order_position = 3
+                    elif snippet.status_label == 'Исключение':
+                        snippet.order_position = 4
+                    snippet.save()
+
                     snippet_lines = []
                     snippet_type = None
                     state = 'snippet_type'

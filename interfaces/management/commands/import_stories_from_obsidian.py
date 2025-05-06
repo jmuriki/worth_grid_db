@@ -1,12 +1,11 @@
 import re
+
 from pathlib import Path
 
-from django.core.files import File
 from django.core.management.base import BaseCommand
 
-from content.models import (
-    InterfaceCatalogSection,
-    InterfaceCatalog,
+from interfaces.models import (
+    InterfaceSubCatalog,
     Interface,
     Role,
     Function,
@@ -45,8 +44,8 @@ class Command(BaseCommand):
             with open(md_path, 'r', encoding='utf-8') as file:
                 text = file.read().splitlines()
 
-            interface_catalog_section_name = md_path.parent.name
-            section, _ = InterfaceCatalogSection.objects.get_or_create(title=interface_catalog_section_name)
+            interface_subcatalog_name = md_path.parent.name
+            subcatalog, _ = InterfaceSubCatalog.objects.get_or_create(title=interface_subcatalog_name)
             
             interface = None
             role = None
@@ -65,7 +64,7 @@ class Command(BaseCommand):
                     interface_subtitle = interface_md_title.group('title')
                     interface_title = md_path.stem
                     interface, _ = Interface.objects.get_or_create(title=interface_title, subtitle=interface_subtitle)
-                    interface.sections.add(section)
+                    interface.subcatalogs.add(subcatalog)
 
                 md_role = RE_USER_TYPE.search(line)
                 if md_role:
