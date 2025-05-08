@@ -1,7 +1,10 @@
+import nested_admin
+
 from django.contrib import admin
 from django.db import models
 from django.forms import TextInput
 
+from antipatterns.models import AntiPatternExampleStoryAcceptor
 from interfaces.models import (
     InterfaceSubCatalog,
     InterfaceCatalog,
@@ -20,8 +23,18 @@ admin.site.site_title = "Ценностная сетка"
 admin.site.index_title = "Административная панель"
 
 
-CHAR_FIELD_LINE_OVERRIDE = {models.CharField: {'widget': TextInput(attrs={'size': 100})}}
+CHAR_FIELD_LINE_OVERRIDE = {
+    models.CharField: {'widget': TextInput(attrs={'size': 100})}
+}
 
+class AntiPatternExampleStoryAcceptorInline(nested_admin.NestedTabularInline):
+    model = AntiPatternExampleStoryAcceptor
+    fk_name = 'story_acceptor'
+    extra = 0
+    fields = ('order_position', 'anti_pattern_example', 'comment',)
+    raw_id_fields = ('anti_pattern_example',)
+    ordering = ('order_position',)
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
 class InterfaceInline(admin.TabularInline):
     model = Interface.subcatalogs.through
@@ -46,24 +59,25 @@ class StoryInline(admin.TabularInline):
     fields = ('order_position', 'title', 'got_wanted', 'description',)
     ordering = ('order_position',)
 
-class StoryContextInline(admin.TabularInline):
+class StoryContextInline(nested_admin.NestedTabularInline):
     model = StoryContext
     extra = 0
     fields = ('order_position', 'text',)
     ordering = ('order_position',)
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
-class StartPointInline(admin.TabularInline):
+class StartPointInline(nested_admin.NestedTabularInline):
     model = StartPoint
     extra = 1
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
-class StoryAcceptorInline(admin.TabularInline):
+class StoryAcceptorInline(nested_admin.NestedTabularInline):
     model = StoryAcceptor
     extra = 0
     fields = ('order_position', 'text',)
     ordering = ('order_position',)
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
+    inlines = (AntiPatternExampleStoryAcceptorInline,)
 
 
 class InterfaceSubCatalogFilter(admin.SimpleListFilter):
@@ -79,7 +93,9 @@ class InterfaceSubCatalogFilter(admin.SimpleListFilter):
             if hasattr(queryset.model, 'subcatalogs'):
                 return queryset.filter(subcatalogs__id=self.value())
             elif hasattr(queryset.model, 'stories'):
-                return queryset.filter(stories__interface__subcatalogs__id=self.value()).distinct()
+                return queryset.filter(
+                    stories__interface__subcatalogs__id=self.value()
+                ).distinct()
         return queryset
 
 class InterfaceFilter(admin.SimpleListFilter):
@@ -101,7 +117,6 @@ class InterfaceSubCatalogAdmin(admin.ModelAdmin):
     list_display   = ('id', 'title', 'get_interfaces', 'order_position',)
     search_fields  = ('title', 'interfaces__title')
     inlines = (InterfaceInline,)
-
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_interfaces(self, obj):
@@ -117,7 +132,6 @@ class InterfaceAdmin(admin.ModelAdmin):
     search_fields = ('title', 'subtitle')
     list_filter = (InterfaceSubCatalogFilter,)
     inlines = (InterfaceCatalogInline,)
-    
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
 
@@ -127,20 +141,20 @@ class RoleAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_filter = (InterfaceFilter,)
     inlines = (FunctionInline,)
-
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
 
 @admin.register(Function)
 class FunctionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'job', 'get_role', 'get_interfaces', 'order_position',)
+    list_display = (
+        'id', 'job', 'get_role', 'get_interfaces', 'order_position',
+    )
     search_fields = ('job',)
     list_filter = ('role', 'role__interface')
     raw_id_fields = ('role',)
     inlines = (
         StoryInline,
     )
-
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_role(self, obj):
@@ -153,8 +167,11 @@ class FunctionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Story)
-class StoryAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'function', 'get_role', 'get_interface', 'order_position',)
+class StoryAdmin(nested_admin.NestedModelAdmin):
+    list_display = (
+        'id', 'title', 'function', 'get_role',
+        'get_interface', 'order_position',
+    )
     search_fields = ('title',)
     list_filter = ('function__role__interface', 'function__role', 'function',)
     raw_id_fields = ('function',)
@@ -163,7 +180,6 @@ class StoryAdmin(admin.ModelAdmin):
         StartPointInline,
         StoryAcceptorInline,
     )
-
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_role(self, obj):
@@ -181,20 +197,19 @@ class StoryAdmin(admin.ModelAdmin):
 
 
 @admin.register(StoryAcceptor)
-class StoryAcceptorAdmin(admin.ModelAdmin):
-    list_display = ('id', 'text', 'get_interface', 'get_role', 'get_job', 'get_story',)
-
+class StoryAcceptorAdmin(nested_admin.NestedModelAdmin):
+    list_display = (
+        'id', 'text', 'get_interface', 'get_role', 'get_job', 'get_story',
+    )
     list_select_related = ('story__function__role__interface',)
-
     list_filter = (
         ('story__function__role__interface', admin.RelatedOnlyFieldListFilter),
         ('story__function__role', admin.RelatedOnlyFieldListFilter),
         'story__function__job',
         ('story', admin.RelatedOnlyFieldListFilter),
     )
-
     raw_id_fields = ('story',)
-
+    inlines = (AntiPatternExampleStoryAcceptorInline,)
     formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
     def get_interface(self, obj):

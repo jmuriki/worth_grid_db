@@ -10,6 +10,7 @@ from django.utils.safestring import mark_safe
 from antipatterns.models import (
     AntiPattern,
     AntiPatternExample,
+    AntiPatternExampleStoryAcceptor,
     Snippet,
 )
 
@@ -19,21 +20,36 @@ admin.site.site_title = "Ценностная сетка"
 admin.site.index_title = "Административная панель"
 
 
-CHAR_FIELD_LINE_OVERRIDE = {models.CharField: {'widget': TextInput(attrs={'size': 100})}}
+CHAR_FIELD_LINE_OVERRIDE = {
+    models.CharField: {'widget': TextInput(attrs={'size': 100})}
+}
 
 
 class SnippetInline(nested_admin.NestedTabularInline):
     model = Snippet
     extra = 0
-    fields = ('order_position', 'anti_pattern_present', 'fix_status', 'lang_ident', 'code',)
+    fields = (
+        'order_position', 'anti_pattern_present',
+        'fix_status', 'status_label', 'lang_ident', 'code',
+    )
+    readonly_fields = ('status_label',)
     ordering = ('order_position',)
+
+class AcceptorsInline(nested_admin.NestedTabularInline):
+    model = AntiPatternExampleStoryAcceptor
+    fk_name = 'anti_pattern_example'
+    extra = 0
+    fields = ('order_position', 'story_acceptor', 'comment',)
+    raw_id_fields = ('story_acceptor',)
+    ordering = ('order_position',)
+
+    formfield_overrides = CHAR_FIELD_LINE_OVERRIDE
 
 class AntiPatternExampleInline(nested_admin.NestedTabularInline):
     model = AntiPatternExample
     extra = 0
-    fields = ('order_position', 'description', 'acceptors',)
-    raw_id_fields = ('acceptors',)
-    inlines = [SnippetInline,]
+    fields = ('order_position', 'description',)
+    inlines = [AcceptorsInline, SnippetInline,]
 
 
 class AntiPatternFilter(admin.SimpleListFilter):
@@ -42,7 +58,9 @@ class AntiPatternFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         antipatterns = AntiPattern.objects.all().order_by('title')
-        return [(antipattern.id, antipattern.title) for antipattern in antipatterns]
+        return [
+            (antipattern.id, antipattern.title) for antipattern in antipatterns
+        ]
 
     def queryset(self, request, queryset):
         if self.value():
@@ -52,7 +70,7 @@ class AntiPatternFilter(admin.SimpleListFilter):
 
 @admin.register(AntiPattern)
 class AntiPatternAdmin(nested_admin.NestedModelAdmin):
-    list_display = ('id', 'title', 'subtitle', 'get_tags',)
+    list_display = ('id', 'title', 'subtitle', 'get_tags', 'get_exclusions',)
     search_fields  = ('title', 'tags__name',)
     list_filter = ('tags', )
     list_per_page = 20
@@ -70,14 +88,32 @@ class AntiPatternAdmin(nested_admin.NestedModelAdmin):
         return ", ".join(tag.name for tag in obj.tags.all())
     get_tags.short_description = 'Теги'
 
+    def get_exclusions(self, obj):
+        for example in obj.examples.all().prefetch_related('snippets'):
+            for snippet in example.snippets.all():
+                if snippet.status_label == 'Исключение'\
+                or snippet.status_label == 'Допустимо':
+                    return format_html(
+                        '<span style="color: green;">Есть Исключение</span>'
+                    )
+            return format_html(
+                '<span style="color: red;">Не хватает Исключения</span>'
+            )
+        return format_html(
+            '<span style="color: blue;">Только описание без сниппетов</span>'
+        )
+    get_exclusions.short_description = 'Исключения'
+
 
 @admin.register(AntiPatternExample)
-class AntiPatternExampleAdmin(admin.ModelAdmin):
-    list_display = ('anti_pattern', 'description', 'get_snippet_codes')
+class AntiPatternExampleAdmin(nested_admin.NestedModelAdmin):
+    list_display = (
+        'anti_pattern', 'description', 'get_snippet_codes', 'get_exclusions',
+    )
     list_filter = (AntiPatternFilter,)
-    raw_id_fields = ('anti_pattern', 'acceptors',)
+    raw_id_fields = ('anti_pattern',)
     ordering = ('order_position',)
-    inlines = (SnippetInline,)
+    inlines = (AcceptorsInline, SnippetInline,)
     list_per_page = 7
 
     def get_snippet_codes(self, obj):
@@ -94,6 +130,18 @@ class AntiPatternExampleAdmin(admin.ModelAdmin):
         ]
         return mark_safe("".join(codes))
     get_snippet_codes.short_description = 'Сниппеты'
+
+    def get_exclusions(self, obj):
+        for snippet in obj.snippets.all():
+            if snippet.status_label == 'Исключение'\
+            or snippet.status_label == 'Допустимо':
+                return format_html(
+                    '<span style="color: green;">Есть Исключение</span>'
+                )
+        return format_html(
+            '<span style="color: red;">Не хватает Исключения</span>'
+        )
+    get_exclusions.short_description = 'Исключения'
 
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

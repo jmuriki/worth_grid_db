@@ -46,7 +46,7 @@ class AntiPatternExample(models.Model):
         blank=True,
     )
     order_position = models.PositiveIntegerField(
-        verbose_name='Очередь',
+        verbose_name='Очередь Примера',
         help_text='Чем меньше, тем выше Пример в Анти-паттерне.',
         default=1,
         validators=[MinValueValidator(1)],
@@ -56,6 +56,8 @@ class AntiPatternExample(models.Model):
         verbose_name='Акцепторы',
         related_name='anti_pattern_examples',
         blank=True,
+        through='AntiPatternExampleStoryAcceptor',
+        through_fields=('anti_pattern_example', 'story_acceptor'),
     )
 
     class Meta:
@@ -64,6 +66,40 @@ class AntiPatternExample(models.Model):
 
     def __str__(self):
         return f'Пример к Анти-паттерну "{self.anti_pattern.title}"'
+
+
+class AntiPatternExampleStoryAcceptor(models.Model):
+    anti_pattern_example = models.ForeignKey(
+        AntiPatternExample,
+        verbose_name='Пример Анти-паттерна',
+        related_name='acceptor_links',
+        on_delete=models.CASCADE,
+    )
+    story_acceptor = models.ForeignKey(
+        StoryAcceptor,
+        verbose_name='Акцептор Истории',
+        related_name='example_links',
+        on_delete=models.CASCADE,
+    )
+    order_position = models.PositiveIntegerField(
+        verbose_name='Очерёдность',
+        help_text='Чем меньше число — тем выше Пример в списке выдачи.',
+        default=1,
+        validators=[MinValueValidator(1)],
+    )
+    comment = models.CharField(
+        verbose_name='Как заметить?',
+        help_text='Как заметить Анти-паттерн?',
+        max_length=200,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = 'Связь «Пример Анти-паттерна - Акцептор»'
+        verbose_name_plural = 'Связи «Пример Анти-паттерна - Акцептор»'
+
+    def __str__(self):
+        return f'{self.anti_pattern_example} ↔ {self.story_acceptor}'
 
 
 SNIPPET_FIX_STATUS_CHOICES = [
@@ -96,7 +132,7 @@ class Snippet(models.Model):
         verbose_name='Код',
     )
     order_position = models.PositiveIntegerField(
-        verbose_name='Очередь',
+        verbose_name='Очередь Спиппета',
         help_text='Чем меньше, тем выше Сниппет в Примере.',
         default=1,
         validators=[MinValueValidator(1)],
@@ -121,3 +157,4 @@ class Snippet(models.Model):
             (self.anti_pattern_present, self.fix_status),
             ''
         )
+    status_label.fget.short_description = 'Статус сниппета'
