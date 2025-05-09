@@ -3,7 +3,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.db.models import Prefetch
 
-from content.models import (
+from antipatterns.models import (
     AntiPattern,
     AntiPatternExample,
     Snippet,
