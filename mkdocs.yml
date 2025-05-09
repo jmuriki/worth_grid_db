@@ -22,9 +22,6 @@ plugins:
       min_search_length: 2
       lang: ru
 
-extra_css:
-  - css/extra.css
-
 markdown_extensions:
   - toc:
       permalink: true  # ставить «¶» напротив каждого заголовка
