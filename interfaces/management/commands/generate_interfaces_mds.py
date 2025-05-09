@@ -53,7 +53,7 @@ class Command(BaseCommand):
                     catalog_file.write('<ul>\n')
                     catalog_file.write('\t<li>\n')
                     catalog_file.write(
-                        f'\t\t<img src="../../../../img/{os.path.basename(interface.logo.name)}"\r\
+                        f'\t\t<img src="../img/{os.path.basename(interface.logo.name)}"\r\
                         alt="logo" style="width: 2em; vertical-align: middle;" />\n'
                     )
                     catalog_file.write(
