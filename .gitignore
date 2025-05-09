@@ -161,10 +161,6 @@ cython_debug/
 
 # This project
 .DS_Store
-media/
 static/
 staticfiles/
 migrations/
-archive/
-ИНТЕРФЕЙСЫ/
-АНТИ-ПАТТЕРНЫ/
