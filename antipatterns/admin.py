@@ -102,7 +102,7 @@ class AntiPatternAdmin(nested_admin.NestedModelAdmin):
         return format_html(
             '<span style="color: blue;">Только описание без сниппетов</span>'
         )
-    get_exclusions.short_description = 'Исключения'
+    get_exclusions.short_description = 'Статус'
 
 
 @admin.register(AntiPatternExample)
@@ -141,7 +141,7 @@ class AntiPatternExampleAdmin(nested_admin.NestedModelAdmin):
         return format_html(
             '<span style="color: red;">Не хватает Исключения</span>'
         )
-    get_exclusions.short_description = 'Исключения'
+    get_exclusions.short_description = 'Статус'
 
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

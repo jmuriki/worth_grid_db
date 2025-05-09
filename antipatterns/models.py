@@ -157,4 +157,4 @@ class Snippet(models.Model):
             (self.anti_pattern_present, self.fix_status),
             ''
         )
-    status_label.fget.short_description = 'Статус сниппета'
+    status_label.fget.short_description = 'Резолюция сниппета'

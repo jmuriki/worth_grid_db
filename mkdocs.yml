@@ -1,0 +1,30 @@
+site_name: Ценностная сетка
+
+nav:
+  - Домашняя: index.md
+  - Введение: Введение.md
+  - Алгоритм применения: Алгоритм применения.md
+  - Контакты: Контакты.md
+
+  - Интерфейсы:
+    - Каталог: Интерфейсы
+
+  - Анти-паттерны:
+    - Каталог: Анти-паттерны.md
+
+theme:
+  name: readthedocs
+  navigation_depth: 6
+  custom_dir: docs/overrides
+
+plugins:
+  - search:
+      min_search_length: 2
+      lang: ru
+
+extra_css:
+  - css/extra.css
+
+markdown_extensions:
+  - toc:
+      permalink: true  # ставить «¶» напротив каждого заголовка

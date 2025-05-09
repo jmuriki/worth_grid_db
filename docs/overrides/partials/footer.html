@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block footer %}
+  {{ super() }}
+  <div class="doc-version">Версия: {{ config.extra.version }}</div>
+{% endblock %}

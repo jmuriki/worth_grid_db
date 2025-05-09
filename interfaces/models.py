@@ -132,7 +132,7 @@ class Role(models.Model):
     )
     logo = models.ImageField(
         verbose_name='Лого',
-        upload_to='user_types/',
+        upload_to='roles/',
         blank=True,
         null=True,
     )
