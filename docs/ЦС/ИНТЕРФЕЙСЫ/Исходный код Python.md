@@ -1,7 +1,7 @@
 
 <div style="display: flex; align-items: flex-start; align-items: center;">
 	<div style="margin-right: 5px;">
-		<img src="../../../../img/source_code_py.png" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
+		<img src="../../../img/source_code_py.png" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
 	</div>
 	<div>
 		<h1 style="margin: 0;">Исходный код Python</h1>
