@@ -15,7 +15,7 @@ nav:
 theme:
   name: readthedocs
   navigation_depth: 6
-  custom_dir: mkdocs/overrides
+  custom_dir: docs/overrides
 
 plugins:
   - search:
