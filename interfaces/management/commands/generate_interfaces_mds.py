@@ -50,7 +50,7 @@ class Command(BaseCommand):
                     md_file.write(dedent(f'''
                         <div style="display: flex; align-items: flex-start; align-items: center;">
                         \t<div style="margin-right: 5px;">
-                        \t\t<img src="../../../../img/{os.path.basename(interface.logo.name)}" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
+                        \t\t<img src="../../../img/{os.path.basename(interface.logo.name)}" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
                         \t</div>
                         \t<div>
                         \t\t<h1 style="margin: 0;">{interface_name}</h1>
@@ -72,7 +72,7 @@ class Command(BaseCommand):
                             ***\n
                             <div style="display: flex; align-items: flex-start; align-items: center;">
                             \t<div style="margin-right: 5px;">
-                            \t\t<img src="../../../../img/{os.path.basename(role.logo.name)}" alt="logo" style="display: block; width: 3.3em; height: auto; margin-right: 1rem;" />
+                            \t\t<img src="../../../img/{os.path.basename(role.logo.name)}" alt="logo" style="display: block; width: 3.3em; height: auto; margin-right: 1rem;" />
                             \t</div>
                             \t<div>
                             \t\t<h2 style="margin: 0; font-size: 22px;">{role_title}</h2>
@@ -180,11 +180,11 @@ class Command(BaseCommand):
                                                     anti_pattern_name = example_link.anti_pattern_example.anti_pattern.title
                                                     comment_line = f'**Как обнаружить:** {example_link.comment}\n' if example_link.comment else ''
                                                     file.write(dedent(f'''
-                                                        **Пример {number} к Анти-паттерну:** [{anti_pattern_name}](../../../../ЦС/АНТИ-ПАТТЕРНЫ/{anti_pattern_name})\n
+                                                        **Пример {number} к Анти-паттерну:** [{anti_pattern_name}](../../../ЦС/АНТИ-ПАТТЕРНЫ/{anti_pattern_name})\n
                                                         {comment_line}
                                                         ***\n
                                                     '''))
-                                            relations_file_link = f'../../../../{relations_dir_rel_path}/{relations_filename.replace(".md", "")}'
+                                            relations_file_link = f'../../../{relations_dir_rel_path}/{relations_filename.replace(".md", "")}'
                                             md_file.write(f'- {acceptor.text} [☰]({relations_file_link})\n\n')
                                         else:
                                             md_file.write(f'- {acceptor.text}\n\n')
