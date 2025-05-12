@@ -61,13 +61,14 @@ class Command(BaseCommand):
 
                 # Парсим описание Анти-паттерна
                 if state == 'anti_pattern_description':
-                    if not line.startswith('>'):
+                    if not line.startswith('>') and not len(line):
                         anti_pattern.description = "\n".join(anti_pattern_description_lines).strip()
                         anti_pattern.save()
                         state = None
                         continue
-                    anti_pattern_description_lines.append(line.lstrip('>').strip('_').strip())
-                elif line.startswith(('> [!quote]', '> [!cite]')):
+                    stripped_line = line.lstrip('>').strip('_').strip()
+                    anti_pattern_description_lines.append(stripped_line)
+                elif line.startswith(('>[!quote]', '> [!quote]', '>[!cite]', '> [!cite]')) or 'Описание' in line:
                     state = 'anti_pattern_description'
                     continue
 
@@ -132,5 +133,12 @@ class Command(BaseCommand):
                     state = 'snippet_type'
                 if state == 'snippet_type' and '***' in line:
                     state = None
+
+        antipatterns = AntiPattern.objects.prefetch_related('examples')
+        for antipattern in antipatterns:
+            if antipattern.examples and antipattern.examples.count() > 1:
+                for index, example in enumerate(antipattern.examples.order_by('id')):
+                    example.order_position = index + 1
+                    example.save()
 
         self.stdout.write(self.style.SUCCESS('Импорт завершён.'))
