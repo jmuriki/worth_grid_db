@@ -89,7 +89,7 @@ class AntiPatternExampleStoryAcceptor(models.Model):
     )
     comment = models.CharField(
         verbose_name='Как заметить?',
-        help_text='Как заметить Анти-паттерн?',
+        help_text='Как заметить причину поломки Акцептора?',
         max_length=200,
         blank=True,
     )
