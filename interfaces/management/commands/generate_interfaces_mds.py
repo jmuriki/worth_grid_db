@@ -119,13 +119,13 @@ class Command(BaseCommand):
                                     '''))
                                 else:
                                     md_file.write(
-                                        f'**Типичная История:** {role_title} хочет {job.lower()} **{story_title.lower()}**.\n\n'
+                                        f'**Типичная История:** {role_title.lower()} хочет {job.lower()} **{story_title.lower()}**.\n\n'
                                     )
 
                                 # 2
                                 md_file.write(dedent(f'''
-                                    **Кто я:**  {role_title}\n
-                                    **Чего хочу:** {job} **{story_title.lower()}**\n
+                                    **Кто я:**  {role_title.lower()}\n
+                                    **Чего хочу:** {job.lower()} **{story_title.lower()}**\n
                                 '''))
 
                                 # 3
