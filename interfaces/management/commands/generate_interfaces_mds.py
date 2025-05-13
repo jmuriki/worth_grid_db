@@ -119,7 +119,7 @@ class Command(BaseCommand):
                                     '''))
                                 else:
                                     md_file.write(
-                                        f'**Типичная История:** {role_title} хочет {job} {story_title}.\n\n'
+                                        f'**Типичная История:** {role_title} хочет {job.lower()} {story_title.lower()}.\n\n'
                                     )
 
                                 # 2
