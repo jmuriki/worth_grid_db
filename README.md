@@ -22,6 +22,67 @@
 
 Для продолжения переходи в раздел ["Введение"](https://github.com/jmuriki/Interfaces/wiki/Введение)
 
+### Как установить и запустить админку Ценностной сетки
+
+Скачайте код:
+```sh
+git clone https://github.com/devmanorg/worth-grid-prometheus.git
+```
+
+Перейдите в каталог проекта:
+```sh
+cd worth-grid-prometheus
+```
+
+[Установите Python](https://www.python.org/), если ещё нет.
+
+Проверьте, что `python` установлен и корректно настроен. Запустите его в командной строке:
+```sh
+python --version
+```
+
+**Важно!** Рекомендую остановиться на версии 3.11.
+
+Возможно, вместо команды `python` здесь и в остальных инструкциях этого README придётся использовать `python3`. Зависит это от операционной системы и от того, установлен ли у вас Python старой второй версии. 
+
+В каталоге проекта создайте виртуальное окружение:
+```sh
+python -m venv venv
+```
+Активируйте его. На разных операционных системах это делается разными командами:
+
+- Windows: `.\venv\Scripts\activate`
+- MacOS/Linux: `source venv/bin/activate`
+
+
+Установите зависимости в виртуальное окружение:
+```sh
+pip install -r requirements.txt
+```
+
+Определите переменные окружения `SECRET_KEY` и `DEBUG`. Создать файл `.env` в каталоге `worth-grid-prometheus/` и положите туда такой код:
+```sh
+SECRET_KEY=create_your_own_secret_key
+DEBUG=true_or_false
+```
+
+Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+```sh
+python manage.py migrate
+```
+
+Создайте супер-пользователя:
+```sh
+python manage.py createsuperuser
+```
+
+Запустите сервер:
+```sh
+python manage.py runserver
+```
+
+Откройте админку в браузере по адресу [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/).
+
 ***
 
 ### Обратная связь
