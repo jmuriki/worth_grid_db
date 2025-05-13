@@ -10,22 +10,16 @@
 </div>
 
 
-***
-
-<div style="display: flex; align-items: flex-start; align-items: center;">
-	<div style="margin-right: 5px;">
-		<img src="../../../img/pupil.png" alt="logo" style="display: block; width: 3.3em; height: auto; margin-right: 1rem;" />
-	</div>
-	<div>
-		<h2 style="margin: 0; font-size: 22px;">Читатель кода</h2>
-		<p style="margin: 0;">Роль</p>
-	</div>
+<div>
+    <h2 style="margin: 0;">Читатель кода</h2>
+    <p style="margin: 0;">Роль Пользователя</p>
 </div>
 
 
-***
-
-### 𝑓 Бегло проследить поток исполнения программы
+<div>
+    <h3 style="margin: 0;">Бегло проследить поток исполнения программы</h3>
+    <p style="margin: 0;">Ключевая Функция</p>
+</div>
 
 
 ***
