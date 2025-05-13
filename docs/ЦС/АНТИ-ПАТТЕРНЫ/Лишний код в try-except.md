@@ -1,4 +1,8 @@
-# Анти-паттерн: "Лишний код в try-except"
+
+<div>
+    <h1 style="margin: 0;">Лишний код в try-except</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

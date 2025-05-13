@@ -1,4 +1,8 @@
-# Анти-паттерн: "Сложный list comprehension"
+
+<div>
+    <h1 style="margin: 0;">Сложный list comprehension</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

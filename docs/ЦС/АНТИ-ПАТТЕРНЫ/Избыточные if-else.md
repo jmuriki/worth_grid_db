@@ -1,4 +1,8 @@
-# Анти-паттерн: "Избыточные if-else"
+
+<div>
+    <h1 style="margin: 0;">Избыточные if-else</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

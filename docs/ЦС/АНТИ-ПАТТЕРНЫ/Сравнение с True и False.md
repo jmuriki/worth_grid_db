@@ -1,4 +1,8 @@
-# Анти-паттерн: "Сравнение с True и False"
+
+<div>
+    <h1 style="margin: 0;">Сравнение с True и False</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

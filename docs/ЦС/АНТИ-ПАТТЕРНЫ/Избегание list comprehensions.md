@@ -1,4 +1,8 @@
-# Анти-паттерн: "Избегание list comprehensions"
+
+<div>
+    <h1 style="margin: 0;">Избегание list comprehensions</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

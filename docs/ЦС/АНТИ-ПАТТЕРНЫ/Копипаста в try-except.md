@@ -1,4 +1,8 @@
-# Анти-паттерн: "Копипаста в try-except"
+
+<div>
+    <h1 style="margin: 0;">Копипаста в try-except</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

@@ -1,4 +1,8 @@
-# Анти-паттерн: "default=None в BooleanField"
+
+<div>
+    <h1 style="margin: 0;">default=None в BooleanField</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

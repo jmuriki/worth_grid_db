@@ -1,4 +1,8 @@
-# Анти-паттерн: "lower_case в .env"
+
+<div>
+    <h1 style="margin: 0;">lower_case в .env</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

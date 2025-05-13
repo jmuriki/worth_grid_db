@@ -1,4 +1,8 @@
-# Анти-паттерн: "Callback-функции"
+
+<div>
+    <h1 style="margin: 0;">Callback-функции</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

@@ -1,4 +1,8 @@
-# Анти-паттерн: "Hardcoding секретов"
+
+<div>
+    <h1 style="margin: 0;">Hardcoding секретов</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

@@ -1,4 +1,8 @@
-# Анти-паттерн: "try-except вместо suppress"
+
+<div>
+    <h1 style="margin: 0;">try-except вместо suppress</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

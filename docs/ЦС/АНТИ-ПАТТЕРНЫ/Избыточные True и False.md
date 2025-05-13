@@ -1,4 +1,8 @@
-# Анти-паттерн: "Избыточные True и False"
+
+<div>
+    <h1 style="margin: 0;">Избыточные True и False</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

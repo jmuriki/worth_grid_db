@@ -1,4 +1,8 @@
-# Анти-паттерн: "null=True и blank=True со строковыми полями"
+
+<div>
+    <h1 style="margin: 0;">null=True и blank=True со строковыми полями</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 

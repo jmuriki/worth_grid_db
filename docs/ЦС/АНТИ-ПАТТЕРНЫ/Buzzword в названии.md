@@ -1,4 +1,8 @@
-# Анти-паттерн: "Buzzword в названии"
+
+<div>
+    <h1 style="margin: 0;">Buzzword в названии</h1>
+    <p style="margin: 0;">Анти-паттерн</p>
+</div>
 
 ***
 
