@@ -70,7 +70,7 @@ class AntiPatternFilter(admin.SimpleListFilter):
 
 @admin.register(AntiPattern)
 class AntiPatternAdmin(nested_admin.NestedModelAdmin):
-    list_display = ('id', 'title', 'subtitle', 'get_tags', 'get_exclusions',)
+    list_display = ('id', 'title', 'subtitle', 'get_tags', 'get_status',)
     search_fields  = ('title', 'tags__name',)
     list_filter = ('tags', )
     list_per_page = 20
@@ -88,7 +88,7 @@ class AntiPatternAdmin(nested_admin.NestedModelAdmin):
         return ", ".join(tag.name for tag in obj.tags.all())
     get_tags.short_description = 'Теги'
 
-    def get_exclusions(self, obj):
+    def get_status(self, obj):
         for example in obj.examples.all().prefetch_related('snippets'):
             for snippet in example.snippets.all():
                 if snippet.status_label == 'Исключение'\
@@ -102,13 +102,13 @@ class AntiPatternAdmin(nested_admin.NestedModelAdmin):
         return format_html(
             '<span style="color: blue;">Только описание без сниппетов</span>'
         )
-    get_exclusions.short_description = 'Статус'
+    get_status.short_description = 'Статус'
 
 
 @admin.register(AntiPatternExample)
 class AntiPatternExampleAdmin(nested_admin.NestedModelAdmin):
     list_display = (
-        'anti_pattern', 'description', 'get_snippet_codes', 'get_exclusions',
+        'anti_pattern', 'description', 'get_snippet_codes', 'get_status',
     )
     list_filter = (AntiPatternFilter,)
     raw_id_fields = ('anti_pattern',)
@@ -131,17 +131,17 @@ class AntiPatternExampleAdmin(nested_admin.NestedModelAdmin):
         return mark_safe("".join(codes))
     get_snippet_codes.short_description = 'Сниппеты'
 
-    def get_exclusions(self, obj):
+    def get_status(self, obj):
         for snippet in obj.snippets.all():
             if snippet.status_label == 'Исключение'\
             or snippet.status_label == 'Допустимо':
                 return format_html(
-                    '<span style="color: green;">Есть Исключение</span>'
+                    f'<span style="color: green;">Есть Исключение</span>',
                 )
         return format_html(
-            '<span style="color: red;">Не хватает Исключения</span>'
+            f'<span style="color: red;">Не хватает Исключения</span>'
         )
-    get_exclusions.short_description = 'Статус'
+    get_status.short_description = 'Статус'
 
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
