@@ -119,13 +119,13 @@ class Command(BaseCommand):
                                     '''))
                                 else:
                                     md_file.write(
-                                        f'**Типичная История:** {role_title} хочет {job.lower()} {story_title.lower()}.\n\n'
+                                        f'**Типичная История:** {role_title} хочет {job.lower()} **{story_title.lower()}**.\n\n'
                                     )
 
                                 # 2
                                 md_file.write(dedent(f'''
                                     **Кто я:**  {role_title}\n
-                                    **Чего хочу:** {job} {story_title.lower()}\n
+                                    **Чего хочу:** {job} **{story_title.lower()}**\n
                                 '''))
 
                                 # 3
@@ -133,7 +133,7 @@ class Command(BaseCommand):
                                     **Кто я:**\n
                                     - {role_title}\n
                                     **Чего хочу:**\n
-                                    - {job} {story_title.lower()}\n
+                                    - {job} **{story_title.lower()}**\n
                                 '''))
 
                                 if story.context_points.exists():
