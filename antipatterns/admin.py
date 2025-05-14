@@ -49,7 +49,7 @@ class AntiPatternExampleInline(nested_admin.NestedTabularInline):
     model = AntiPatternExample
     extra = 0
     fields = ('order_position', 'description',)
-    inlines = [AcceptorsInline, SnippetInline,]
+    inlines = (SnippetInline, AcceptorsInline,)
 
 
 class AntiPatternFilter(admin.SimpleListFilter):
@@ -113,7 +113,7 @@ class AntiPatternExampleAdmin(nested_admin.NestedModelAdmin):
     list_filter = (AntiPatternFilter,)
     raw_id_fields = ('anti_pattern',)
     ordering = ('order_position',)
-    inlines = (AcceptorsInline, SnippetInline,)
+    inlines = (SnippetInline, AcceptorsInline,)
     list_per_page = 7
 
     def get_snippet_codes(self, obj):
