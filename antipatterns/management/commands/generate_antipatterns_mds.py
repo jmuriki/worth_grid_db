@@ -49,7 +49,6 @@ class Command(BaseCommand):
 
                     examples = antipattern.examples.all().order_by('order_position')
                     with open(antipattern_md_file_path, 'w', encoding='utf-8') as antipattern_md_file:
-                        # antipattern_md_file.write(f'# Анти-паттерн: "{antipattern_title}"\n\n')
                         antipattern_md_file.write(dedent(f'''
                             <div>
                                 <h1 style="margin: 0;">{antipattern_title}</h1>
