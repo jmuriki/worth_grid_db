@@ -37,7 +37,7 @@ class Command(BaseCommand):
         #     f'Удалено связей: {total}'
         # ))
 
-        # acceptors = StoryAcceptor.objects.all()
+        # acceptors = StoryAcceptor.objects.filter(story__function__role__interface__title='SOURCE CODE PY')
         # examples = AntiPatternExample.objects.all().order_by('anti_pattern__title')
         # if not acceptors.exists() or not examples.exists():
         #     self.stdout.write(self.style.WARNING('Нет акцепторов или примеров для обработки.'))
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         # self.stdout.write(self.style.SUCCESS('Запуск команды generate_antipatterns_mds'))
         # call_command('generate_antipatterns_mds')
 
-        # self.stdout.write(self.style.SUCCESS('Запуск команды generate_interfaces_mds'))
-        # call_command('generate_interfaces_mds')
+        self.stdout.write(self.style.SUCCESS('Запуск команды generate_interfaces_mds'))
+        call_command('generate_interfaces_mds')
 
         self.stdout.write(self.style.SUCCESS('Все команды успешно выполнены!'))

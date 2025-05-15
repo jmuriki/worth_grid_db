@@ -18,6 +18,9 @@ class Command(BaseCommand):
             'roles__functions__stories__context_points',
             'roles__functions__stories__start_point',
             'roles__functions__stories__acceptors',
+            'roles__functions__stories__acceptors__example_links',
+            'roles__functions__stories__acceptors__example_links__anti_pattern_example',
+            'roles__functions__stories__acceptors__example_links__anti_pattern_example__snippets',
         )
 
         base_dir = 'docs'
@@ -70,6 +73,8 @@ class Command(BaseCommand):
                     roles = interface.roles.all().order_by('order_position')
                     for role in roles:
                         role_title = role.title
+
+                        # # 1
                         # md_file.write(dedent(f'''
                         #     ***\n
                         #     <div style="display: flex; align-items: flex-start; align-items: center;">
@@ -82,49 +87,76 @@ class Command(BaseCommand):
                         #     \t</div>
                         #     </div>\n
                         # '''))
-                        md_file.write(dedent(f'''
-                            ***\n
-                            <div>
-                                <h2 style="margin: 0;">{role_title}</h2>
-                                <p style="margin: 0;">Роль Пользователя</p>
-                            </div>\n
-                        '''))
 
-                        if role.description:
-                            md_file.write(dedent(f'''
-                                **Описание:**\n
-                                {role.description}\n
-                            '''))
+                        # # 2
+                        # md_file.write(dedent(f'''
+                        #     ***\n
+                        #     <div>
+                        #         <h2 style="margin: 0;">{role_title}</h2>
+                        #         <p style="margin: 0;">Роль Пользователя</p>
+                        #     </div>\n
+                        # '''))
+
+                        # if role.description:
+                        #     md_file.write(dedent(f'''
+                        #         **Описание:**\n
+                        #         {role.description}\n
+                        #     '''))
 
                         functions = role.functions.all().order_by('order_position')
                         for function in functions:
                             job = function.job
+
+                            # # 1
                             # md_file.write(dedent(f'''
                             #     ***\n
                             #     ### 𝑓 {job}\n
                             # '''))
-                            md_file.write(dedent(f'''
-                                ***\n
-                                <div>
-                                    <h3 style="margin: 0;">{job}</h3>
-                                    <p style="margin: 0;">Ключевая Функция</p>
-                                </div>\n
-                            '''))
 
-                            if function.description:
-                                md_file.write(dedent(f'''
-                                    **Описание:**\n
-                                    {function.description}\n
-                                '''))
+                            # # 2
+                            # md_file.write(dedent(f'''
+                            #     ***\n
+                            #     <div>
+                            #         <h3 style="margin: 0;">{job}</h3>
+                            #         <p style="margin: 0;">Ключевая Функция</p>
+                            #     </div>\n
+                            # '''))
+
+                            # if function.description:
+                            #     md_file.write(dedent(f'''
+                            #         **Описание:**\n
+                            #         {function.description}\n
+                            #     '''))
 
                             stories = function.stories.all().order_by('order_position')
                             for story in stories:
+
+                                md_file.write(dedent(f'''
+                                    ***\n
+                                    <div>
+                                        <h2 style="margin: 0;">{role_title}</h2>
+                                        <p style="margin: 0;">Роль Пользователя</p>
+                                    </div>\n
+                                '''))
+
+                                md_file.write(dedent(f'''
+                                    ***\n
+                                    <div>
+                                        <h3 style="margin: 0;">{job}</h3>
+                                        <p style="margin: 0;">Ключевая Функция</p>
+                                    </div>\n
+                                '''))
+
                                 story_title = story.title
                                 story_logo = '✅' if story.got_wanted else '⚠️'
+
+                                # # 1
                                 # md_file.write(dedent(f'''
                                 #     ***\n
                                 #     ##### {story_logo} {story_title}\n
                                 # '''))
+
+                                # 2
                                 md_file.write(dedent(f'''
                                     ***\n
                                     <div>
@@ -133,19 +165,20 @@ class Command(BaseCommand):
                                     </div>\n
                                     ***\n
                                 '''))
-                                
-                                if story.description:
-                                    md_file.write(dedent(f'''
-                                        **Описание:**\n
-                                        {story.description}\n
-                                    '''))
-                                else:
-                                    md_file.write(dedent(f'''
-                                        **Кто я:**\n
-                                        - {role_title}\n
-                                        **Чего хочу:**\n
-                                        - {job} {story_title.lower()}\n
-                                    '''))
+
+                                # # 1
+                                # if story.description:
+                                #     md_file.write(dedent(f'''
+                                #         **Описание:**\n
+                                #         {story.description}\n
+                                #     '''))
+                                # else:
+                                #     md_file.write(dedent(f'''
+                                #         **Кто я:**\n
+                                #         - {role_title}\n
+                                #         **Чего хочу:**\n
+                                #         - {job} {story_title.lower()}\n
+                                #     '''))
 
                                 if story.context_points.exists():
                                     context_points = story.context_points.all().order_by('order_position')
@@ -175,33 +208,88 @@ class Command(BaseCommand):
 
                                             relations_filename = f'Связи_Акцептора_{acceptor.id}.md'
                                             relations_file_path = os.path.join(relations_dir_path, relations_filename)
-                                            with open(relations_file_path, 'w', encoding='utf-8') as file:
-                                                file.write(dedent(f'''
+                                            with open(relations_file_path, 'w', encoding='utf-8') as relations_file:
+
+                                                # # 1
+                                                # relations_file.write(dedent(f'''
+                                                #     # Повреждение и удовлетворение Акцептора\n
+                                                #     ***\n
+                                                #     **Интерфейс:**\n
+                                                #     - {interface_name}\n
+                                                #     **Роль:**\n
+                                                #     - {role_title}\n
+                                                #     **Функция:**\n
+                                                #     - {job}\n
+                                                #     **История:**\n
+                                                #     - {story_title}\n
+                                                #     **Акцептор {got_wanted}а:**\n
+                                                #     - {acceptor.text}\n
+                                                #     ***\n
+                                                # '''))
+
+                                                # 2
+                                                relations_file.write(dedent(f'''
                                                     # Повреждение и удовлетворение Акцептора\n
+                                                '''))
+
+                                                relations_file.write(dedent(f'''
                                                     ***\n
-                                                    **Интерфейс:**\n
-                                                    - {interface_name}\n
-                                                    **Роль:**\n
-                                                    - {role_title}\n
-                                                    **Функция:**\n
-                                                    - {job}\n
-                                                    **История:**\n
-                                                    - {story_title}\n
-                                                    **Акцептор {got_wanted}а:**\n
-                                                    - {acceptor.text}\n
-                                                    ***\n
+                                                    <div>
+                                                    \t<h2 style="margin: 0;">{interface_name}</h2>
+                                                    \t<p style="margin: 0;">Интерфейс</p>
+                                                    </div>
+                                                    <br>
+                                                '''))
+
+                                                relations_file.write(dedent(f'''
+                                                    <div>
+                                                    \t<h3 style="margin: 0;">{role_title}</h3>
+                                                    \t<p style="margin: 0;">Роль Пользователя</p>
+                                                    </div>
+                                                    <br>
+                                                '''))
+
+                                                relations_file.write(dedent(f'''
+                                                    <div>
+                                                    \t<h4 style="margin: 0;">{job}</h4>
+                                                    \t<p style="margin: 0;">Ключевая Функция</p>
+                                                    </div>
+                                                    <br>
+                                                '''))
+
+                                                relations_file.write(dedent(f'''
+                                                    <div>
+                                                    \t<h5 style="margin: 0;">{story_title} {story_logo}</h5>
+                                                    \t<p style="margin: 0;">Типичная История</p>
+                                                    </div>
+                                                    <br>
+                                                '''))
+
+                                                relations_file.write(dedent(f'''
+                                                    <div>
+                                                    \t<h6 style="margin: 0;">{acceptor.text}</h6>
+                                                    \t<p style="margin: 0;">Акцептор {got_wanted}а</p>
+                                                    </div>
+                                                    <br>
                                                 '''))
 
                                                 for example_link in example_links:
-                                                    order_position = example_link.anti_pattern_example.order_position
-                                                    example_number = order_position if order_position else ''
-                                                    anti_pattern_name = example_link.anti_pattern_example.anti_pattern.title
-                                                    comment_line = f'**Как обнаружить:** {example_link.comment}\n' if example_link.comment else ''
-                                                    file.write(dedent(f'''
-                                                        **Пример {example_number} к Анти-паттерну:** [{anti_pattern_name}](../../../ЦС/АНТИ-ПАТТЕРНЫ/{anti_pattern_name})\n
-                                                        {comment_line}
-                                                        ***\n
-                                                    '''))
+                                                    snippets = example_link.anti_pattern_example.snippets.all()
+
+                                                    if snippets:
+                                                        order_position = example_link.anti_pattern_example.order_position
+                                                        example_number = order_position if order_position else ''
+                                                        anti_pattern_name = example_link.anti_pattern_example.anti_pattern.title
+                                                        comment = example_link.comment if example_link.comment else 'ожидается в будущей версии ЦС.'
+                                                        relations_file.write(dedent(f'''
+                                                            ***\n
+                                                            **Пример {example_number} из Анти-паттерна [{anti_pattern_name}](../../../ЦС/АНТИ-ПАТТЕРНЫ/{anti_pattern_name})**\n
+                                                            **Как обнаружить повреждение Акцептора:** {comment}\n
+                                                        '''))
+
+                                                        for snippet in snippets:
+                                                            relations_file.write(f'**{snippet.status_label}:**\n')
+                                                            relations_file.write(f'```{snippet.lang_ident}\n{snippet.code}\n```\n')
 
                                             relations_file_link = f'../../../{relations_dir_rel_path}/{relations_filename.replace(".md", "")}'
                                             md_file.write(f'- {acceptor.text} [🔗]({relations_file_link})\n\n')
