@@ -1,7 +1,9 @@
 
-<div>
+<div class="sticky-header">
+  <div>
     <h1 style="margin: 0;">lower_case в .env</h1>
     <p style="margin: 0;">Анти-паттерн</p>
+  </div>
 </div>
 
 ***

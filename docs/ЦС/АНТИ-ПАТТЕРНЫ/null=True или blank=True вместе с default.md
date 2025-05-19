@@ -1,7 +1,9 @@
 
-<div>
+<div class="sticky-header">
+  <div>
     <h1 style="margin: 0;">null=True или blank=True вместе с default</h1>
     <p style="margin: 0;">Анти-паттерн</p>
+  </div>
 </div>
 
 ***

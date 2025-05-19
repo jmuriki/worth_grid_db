@@ -1,7 +1,9 @@
 
-<div>
+<div class="sticky-header">
+  <div>
     <h1 style="margin: 0;">Лишний код в try-except</h1>
     <p style="margin: 0;">Анти-паттерн</p>
+  </div>
 </div>
 
 ***

@@ -53,13 +53,15 @@ class Command(BaseCommand):
                 interface_md_file_path = Path(interfaces_dir_path, interface_md_filename)
                 with open(interface_md_file_path, 'w', encoding='utf-8') as md_file:
                     md_file.write(dedent(f'''
-                        <div style="display: flex; align-items: flex-start; align-items: center;">
-                        \t<div style="margin-right: 5px;">
-                        \t\t<img src="../../../img/{os.path.basename(interface.logo.name)}" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
-                        \t</div>
-                        \t<div>
-                        \t\t<h1 style="margin: 0;">{interface_name}</h1>
-                        \t\t<p style="margin: 0;">Интерфейс</p>
+                        <div class="sticky-header">
+                        \t<div style="display: flex; align-items: flex-start; align-items: center;">
+                        \t\t<div style="margin-right: 5px;">
+                        \t\t\t<img src="../../../img/{os.path.basename(interface.logo.name)}" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
+                        \t\t</div>
+                        \t\t<div>
+                        \t\t\t<h1 style="margin: 0;">{interface_name}</h1>
+                        \t\t\t<p style="margin: 0;">Интерфейс</p>
+                        \t\t</div>
                         \t</div>
                         </div>\n
                     '''))
@@ -229,46 +231,47 @@ class Command(BaseCommand):
 
                                                 # 2
                                                 relations_file.write(dedent(f'''
-                                                    # Повреждение и удовлетворение Акцептора\n
+                                                    <div class="sticky-header">
+                                                      <h1>Повреждение и удовлетворение Акцептора</h1>
                                                 '''))
 
                                                 relations_file.write(dedent(f'''
-                                                    ***\n
-                                                    <div>
-                                                    \t<h2 style="margin: 0;">{interface_name}</h2>
-                                                    \t<p style="margin: 0;">Интерфейс</p>
-                                                    </div>
-                                                    <br>
+                                                      <div>
+                                                        <h3 style="margin: 0;">{interface_name}</h3>
+                                                        <p style="margin: 0;">Интерфейс</p>
+                                                      </div>
+                                                      <br>
                                                 '''))
 
                                                 relations_file.write(dedent(f'''
-                                                    <div>
-                                                    \t<h3 style="margin: 0;">{role_title}</h3>
-                                                    \t<p style="margin: 0;">Роль Пользователя</p>
-                                                    </div>
-                                                    <br>
+                                                      <div>
+                                                        <h3 style="margin: 0;">{role_title}</h3>
+                                                        <p style="margin: 0;">Роль Пользователя</p>
+                                                      </div>
+                                                      <br>
                                                 '''))
 
                                                 relations_file.write(dedent(f'''
-                                                    <div>
-                                                    \t<h4 style="margin: 0;">{job}</h4>
-                                                    \t<p style="margin: 0;">Ключевая Функция</p>
-                                                    </div>
-                                                    <br>
+                                                      <div>
+                                                        <h3 style="margin: 0;">{job}</h3>
+                                                        <p style="margin: 0;">Ключевая Функция</p>
+                                                      </div>
+                                                      <br>
                                                 '''))
 
                                                 relations_file.write(dedent(f'''
-                                                    <div>
-                                                    \t<h5 style="margin: 0;">{story_title} {story_logo}</h5>
-                                                    \t<p style="margin: 0;">Типичная История</p>
-                                                    </div>
-                                                    <br>
+                                                      <div>
+                                                        <h3 style="margin: 0;">{story_title} {story_logo}</h3>
+                                                        <p style="margin: 0;">Типичная История</p>
+                                                      </div>
+                                                      <br>
                                                 '''))
 
                                                 relations_file.write(dedent(f'''
-                                                    <div>
-                                                    \t<h6 style="margin: 0;">{acceptor.text}</h6>
-                                                    \t<p style="margin: 0;">Акцептор {got_wanted}а</p>
+                                                      <div>
+                                                        <h2 style="margin: 0;">{acceptor.text}</h2>
+                                                        <p style="margin: 0;">Акцептор {got_wanted}а</p>
+                                                      </div>
                                                     </div>
                                                     <br>
                                                 '''))
