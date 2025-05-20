@@ -205,7 +205,7 @@ class Command(BaseCommand):
                                             relations_dir_path = os.path.join(base_dir, relations_dir_rel_path)
                                             os.makedirs(relations_dir_path, exist_ok=True)
 
-                                            relations_filename = f'Связи_Акцептора_{acceptor.id}.md'
+                                            relations_filename = f'Связи_Акцептора {acceptor.id}: {acceptor.text}.md'
                                             relations_file_path = os.path.join(relations_dir_path, relations_filename)
                                             with open(relations_file_path, 'w', encoding='utf-8') as relations_file:
 
