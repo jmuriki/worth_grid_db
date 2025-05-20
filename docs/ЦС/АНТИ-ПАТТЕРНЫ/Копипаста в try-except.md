@@ -5,7 +5,6 @@
     <p style="margin: 0;">Анти-паттерн</p>
   </div>
 </div>
-
 ***
 
 Избегайте использования нескольких `except` блоков для идентичной обработки разных исключений.
@@ -15,20 +14,26 @@
 
 ### Пример 
 
-**Плохо:**
-```python
-try:
+
+                                    **Плохо:**
+
+                                    ```python
+                                    try:
     do_something()
 except ValueError:
     logging.error('Value error')
 except IndexError:
     logging.error('Index error')
-```
-**Хорошо:**
-```python
-try:
+                                    ```
+
+
+                                    **Хорошо:**
+
+                                    ```python
+                                    try:
     do_something()
 except (ValueError, IndexError) as e:
     logging.error(f'Error: {e}')
-```
+                                    ```
+
 

@@ -1,42 +1,37 @@
 
 <div class="sticky-header">
-	<div style="display: flex; align-items: flex-start; align-items: center;">
-		<div style="margin-right: 5px;">
-			<img src="../../../img/source_code_py.png" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
-		</div>
-		<div>
-			<h1 style="margin: 0;">Исходный код Python</h1>
-			<p style="margin: 0;">Интерфейс</p>
-		</div>
-	</div>
+    <div style="display: flex; align-items: flex-start; align-items: center;">
+      <div style="margin-right: 5px;">
+          <img src="../../../img/source_code_py.png" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
+      </div>
+      <div>
+          <h1 style="margin: 0;">Исходный код Python</h1>
+          <p style="margin: 0;">Интерфейс</p>
+      </div>
+    </div>
 </div>
 
 
-***
-
-<div>
-    <h2 style="margin: 0;">Читатель кода</h2>
-    <p style="margin: 0;">Роль Пользователя</p>
+<br>
+<div class="sticky-subheader">
+    <br>
+    <div>
+        <h2 style="margin: 0;">Читатель кода</h2>
+        <p style="margin: 0;">Роль Пользователя</p>
+    </div>
+    <br>
+    <div>
+        <h3 style="margin: 0;">Бегло проследить поток исполнения программы</h3>
+        <p style="margin: 0;">Ключевая Функция</p>
+    </div>
+    <br>
+    <div>
+        <h4 style="margin: 0;">В один проход ✅</h4>
+        <p style="margin: 0;">Типичная История</p>
+    </div>
+    <br>
 </div>
-
-
-***
-
-<div>
-    <h3 style="margin: 0;">Бегло проследить поток исполнения программы</h3>
-    <p style="margin: 0;">Ключевая Функция</p>
-</div>
-
-
-***
-
-<div>
-    <h4 style="margin: 0;">В один проход ✅</h4>
-    <p style="margin: 0;">Типичная История</p>
-</div>
-
-***
-
+<br>
 **Когда:**
 
 - Тороплюсь, поэтому особенно важно управиться в один проход по коду

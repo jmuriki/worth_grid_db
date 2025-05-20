@@ -42,10 +42,10 @@ class Command(BaseCommand):
                 interface_rel_link = os.path.join(f'../ЦС/ИНТЕРФЕЙСЫ', interface_name)
                 encoded_interface_rel_link = interface_rel_link.replace(' ', '%20')
                 interface_catalog_line = dedent(f'''
-                    \t<li>
-                    \t\t<img src="../img/{os.path.basename(interface.logo.name)}" alt="logo" style="width: 2em; vertical-align: middle;" />
-                    \t\t<a href="{encoded_interface_rel_link}" style="margin-left: 5px;">{interface_name}</a>
-                    \t</li>
+                    <li>
+                        <img src="../img/{os.path.basename(interface.logo.name)}" alt="logo" style="width: 2em; vertical-align: middle;" />
+                        <a href="{encoded_interface_rel_link}" style="margin-left: 5px;">{interface_name}</a>
+                    </li>
                 ''')
                 interfaces_catalog_file.write(interface_catalog_line)
 
@@ -54,15 +54,15 @@ class Command(BaseCommand):
                 with open(interface_md_file_path, 'w', encoding='utf-8') as md_file:
                     md_file.write(dedent(f'''
                         <div class="sticky-header">
-                        \t<div style="display: flex; align-items: flex-start; align-items: center;">
-                        \t\t<div style="margin-right: 5px;">
-                        \t\t\t<img src="../../../img/{os.path.basename(interface.logo.name)}" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
-                        \t\t</div>
-                        \t\t<div>
-                        \t\t\t<h1 style="margin: 0;">{interface_name}</h1>
-                        \t\t\t<p style="margin: 0;">Интерфейс</p>
-                        \t\t</div>
-                        \t</div>
+                            <div style="display: flex; align-items: flex-start; align-items: center;">
+                              <div style="margin-right: 5px;">
+                                  <img src="../../../img/{os.path.basename(interface.logo.name)}" alt="logo" style="display: block; width: 4em; height: auto; margin-right: 1rem;" />
+                              </div>
+                              <div>
+                                  <h1 style="margin: 0;">{interface_name}</h1>
+                                  <p style="margin: 0;">Интерфейс</p>
+                              </div>
+                            </div>
                         </div>\n
                     '''))
 
@@ -132,23 +132,6 @@ class Command(BaseCommand):
 
                             stories = function.stories.all().order_by('order_position')
                             for story in stories:
-
-                                md_file.write(dedent(f'''
-                                    ***\n
-                                    <div>
-                                        <h2 style="margin: 0;">{role_title}</h2>
-                                        <p style="margin: 0;">Роль Пользователя</p>
-                                    </div>\n
-                                '''))
-
-                                md_file.write(dedent(f'''
-                                    ***\n
-                                    <div>
-                                        <h3 style="margin: 0;">{job}</h3>
-                                        <p style="margin: 0;">Ключевая Функция</p>
-                                    </div>\n
-                                '''))
-
                                 story_title = story.title
                                 story_logo = '✅' if story.got_wanted else '⚠️'
 
@@ -160,12 +143,26 @@ class Command(BaseCommand):
 
                                 # 2
                                 md_file.write(dedent(f'''
-                                    ***\n
-                                    <div>
-                                        <h4 style="margin: 0;">{story_title} {story_logo}</h4>
-                                        <p style="margin: 0;">Типичная История</p>
-                                    </div>\n
-                                    ***\n
+                                    <br>
+                                    <div class="sticky-subheader">
+                                        <br>
+                                        <div>
+                                            <h2 style="margin: 0;">{role_title}</h2>
+                                            <p style="margin: 0;">Роль Пользователя</p>
+                                        </div>
+                                        <br>
+                                        <div>
+                                            <h3 style="margin: 0;">{job}</h3>
+                                            <p style="margin: 0;">Ключевая Функция</p>
+                                        </div>
+                                        <br>
+                                        <div>
+                                            <h4 style="margin: 0;">{story_title} {story_logo}</h4>
+                                            <p style="margin: 0;">Типичная История</p>
+                                        </div>
+                                        <br>
+                                    </div>
+                                    <br>
                                 '''))
 
                                 # # 1
@@ -232,46 +229,37 @@ class Command(BaseCommand):
                                                 # 2
                                                 relations_file.write(dedent(f'''
                                                     <div class="sticky-header">
-                                                      <h1>Повреждение и удовлетворение Акцептора</h1>
-                                                '''))
-
-                                                relations_file.write(dedent(f'''
-                                                      <div>
-                                                        <h3 style="margin: 0;">{interface_name}</h3>
-                                                        <p style="margin: 0;">Интерфейс</p>
-                                                      </div>
-                                                      <br>
-                                                '''))
-
-                                                relations_file.write(dedent(f'''
-                                                      <div>
-                                                        <h3 style="margin: 0;">{role_title}</h3>
-                                                        <p style="margin: 0;">Роль Пользователя</p>
-                                                      </div>
-                                                      <br>
-                                                '''))
-
-                                                relations_file.write(dedent(f'''
-                                                      <div>
-                                                        <h3 style="margin: 0;">{job}</h3>
-                                                        <p style="margin: 0;">Ключевая Функция</p>
-                                                      </div>
-                                                      <br>
-                                                '''))
-
-                                                relations_file.write(dedent(f'''
-                                                      <div>
-                                                        <h3 style="margin: 0;">{story_title} {story_logo}</h3>
-                                                        <p style="margin: 0;">Типичная История</p>
-                                                      </div>
-                                                      <br>
-                                                '''))
-
-                                                relations_file.write(dedent(f'''
-                                                      <div>
-                                                        <h2 style="margin: 0;">{acceptor.text}</h2>
-                                                        <p style="margin: 0;">Акцептор {got_wanted}а</p>
-                                                      </div>
+                                                        <br>
+                                                        <h1>Повреждение и удовлетворение Акцептора</h1>
+                                                    </div>
+                                                    <br>
+                                                    <div class="sticky-subheader">
+                                                        <br>
+                                                        <div>
+                                                            <h3 style="margin: 0;">{interface_name}</h3>
+                                                            <p style="margin: 0;">Интерфейс</p>
+                                                        </div>
+                                                        <br>
+                                                        <div>
+                                                            <h3 style="margin: 0;">{role_title}</h3>
+                                                            <p style="margin: 0;">Роль Пользователя</p>
+                                                        </div>
+                                                        <br>
+                                                        <div>
+                                                            <h3 style="margin: 0;">{job}</h3>
+                                                            <p style="margin: 0;">Ключевая Функция</p>
+                                                        </div>
+                                                        <br>
+                                                        <div>
+                                                            <h3 style="margin: 0;">{story_title} {story_logo}</h3>
+                                                            <p style="margin: 0;">Типичная История</p>
+                                                        </div>
+                                                        <br>
+                                                        <div>
+                                                            <h3 style="margin: 0;">{acceptor.text}</h3>
+                                                            <p style="margin: 0;">Акцептор {got_wanted}а</p>
+                                                        </div>
+                                                        <br>
                                                     </div>
                                                     <br>
                                                 '''))
@@ -286,13 +274,19 @@ class Command(BaseCommand):
                                                         comment = example_link.comment if example_link.comment else 'ожидается в будущей версии ЦС.'
                                                         relations_file.write(dedent(f'''
                                                             ***\n
-                                                            **Пример {example_number} из Анти-паттерна [{anti_pattern_name}](../../../ЦС/АНТИ-ПАТТЕРНЫ/{anti_pattern_name})**\n
+                                                            #### Пример {example_number} из Анти-паттерна ["{anti_pattern_name}"](../../../ЦС/АНТИ-ПАТТЕРНЫ/{anti_pattern_name})\n
                                                             **Как обнаружить повреждение Акцептора:** {comment}\n
                                                         '''))
 
                                                         for snippet in snippets:
-                                                            relations_file.write(f'**{snippet.status_label}:**\n')
-                                                            relations_file.write(f'```{snippet.lang_ident}\n{snippet.code}\n```\n')
+                                                            # relations_file.write(f'**{snippet.status_label}:**\n')
+                                                            # relations_file.write(f'```{snippet.lang_ident}\n{snippet.code}\n```\n')
+                                                            relations_file.write(dedent(f'''
+                                                                \r**{snippet.status_label}:**\n
+                                                                \r```{snippet.lang_ident}
+                                                                \r{snippet.code}
+                                                                \r```\n
+                                                            '''))
 
                                             relations_file_link = f'../../../{relations_dir_rel_path}/{relations_filename.replace(".md", "")}'
                                             md_file.write(f'- {acceptor.text} [🔗]({relations_file_link})\n\n')

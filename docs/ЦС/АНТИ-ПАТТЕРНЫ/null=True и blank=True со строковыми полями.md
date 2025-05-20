@@ -5,7 +5,6 @@
     <p style="margin: 0;">Анти-паттерн</p>
   </div>
 </div>
-
 ***
 
 При работе с любыми строковыми полями в `Django`, важно понимать различие между параметрами `null` и `blank`.
@@ -20,9 +19,11 @@
 
 Для строковых полей рекомендуется использовать `blank=True`, но не `null=True`, потому что в БД принято хранить «пустое» значение для строк как пустую строку '', а не как  `NULL`. Установка  `null=True` создаёт двусмысленность: отсутствие данных может быть представлено, в таком случае, и как NULL, и как пустая строка.
 
-**Плохо:**
-```python
-from django.db import models
+
+                                    **Плохо:**
+
+                                    ```python
+                                    from django.db import models
 
 
 class Article(models.Model):
@@ -32,10 +33,13 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
-```
-**Хорошо:**
-```python
-from django.db import models
+                                    ```
+
+
+                                    **Хорошо:**
+
+                                    ```python
+                                    from django.db import models
 
 
 class Article(models.Model):
@@ -45,5 +49,6 @@ class Article(models.Model):
 
     def __str__(self):
         return self.title
-```
+                                    ```
+
 

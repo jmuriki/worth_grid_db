@@ -5,7 +5,6 @@
     <p style="margin: 0;">Анти-паттерн</p>
   </div>
 </div>
-
 ***
 
 Нет смысла дублировать название модели в related_name - в прикладном коде он и так всегда следует за названием модели данных. Высушите related_name.
@@ -16,9 +15,11 @@
 
 Сравните масло-масляный вариант и высушенный - очевидно, что короткий вариант лучше, с какой стороны ни посмотри.
 
-**Плохо:**
-```python
-from django.db import models
+
+                                    **Плохо:**
+
+                                    ```python
+                                    from django.db import models
 
 class Owner(models.Model):
     ...
@@ -28,10 +29,13 @@ class Owner(models.Model):
         related_name='flats_owners',
     )
     ...
-```
-**Хорошо:**
-```python
-from django.db import models
+                                    ```
+
+
+                                    **Хорошо:**
+
+                                    ```python
+                                    from django.db import models
 
 class Owner(models.Model):
     ...
@@ -41,5 +45,6 @@ class Owner(models.Model):
         related_name='owners',
     )
     ...
-```
+                                    ```
+
 

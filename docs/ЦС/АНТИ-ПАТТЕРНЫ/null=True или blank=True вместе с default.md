@@ -5,7 +5,6 @@
     <p style="margin: 0;">Анти-паттерн</p>
   </div>
 </div>
-
 ***
 
 Сочетание `null=True` или `blank=True` вместе с `default` значением должно настораживать, поскольку может вызывать сложное и неявное поведение.
@@ -16,22 +15,28 @@
 
 Если для поля предусмотрено значение `default`, то параметр `null=True` в большинстве случаев становится избыточным, так как при отсутствии значения поле всегда получит значение по умолчанию, и в базе не окажется `NULL`. Это может привести к двусмысленности, когда логически отсутствующее значение может быть представлено и как `default`, и как `NULL`, что снижает читаемость кода и усложняет логику.
 
-**Плохо:**
-```python
-from django.db import models
+
+                                    **Плохо:**
+
+                                    ```python
+                                    from django.db import models
 
 
 class Product(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True, default="Unknown")
-```
-**Хорошо:**
-```python
-from django.db import models
+                                    ```
+
+
+                                    **Хорошо:**
+
+                                    ```python
+                                    from django.db import models
 
 
 class Product(models.Model):
     name = models.CharField(max_length=100, blank=True, default="Unknown")
-```
+                                    ```
+
 ***
 
 ### Пример 2

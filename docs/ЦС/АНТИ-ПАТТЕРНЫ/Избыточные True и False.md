@@ -5,7 +5,6 @@
     <p style="margin: 0;">Анти-паттерн</p>
   </div>
 </div>
-
 ***
 
 Зачем лишний раз упоминать True или False, когда Python позволяет писать более лаконичный код? Следует пользоваться данной возможностью.
@@ -16,50 +15,64 @@
 
 В данном случае можно не использовать True и False явно, тем самым высушивая код. Заодно код избавляется и от [[Избыточные if-else|избыточных if-else]].
 
-**Плохо:**
-```python
-def get_link_status(link):
-    link_status = ...
-    if link_status:
-        return True
-    else:
-        return False
-```
-**Хорошо:**
-```python
-def get_link_status(link):
-    link_status = ...
-    return bool(link_status)
-```
+
+                                **Плохо:**
+
+                                ```python
+                                def get_link_status(link):
+link_status = ...
+if link_status:
+    return True
+else:
+    return False
+                                ```
+
+
+                                **Хорошо:**
+
+                                ```python
+                                def get_link_status(link):
+link_status = ...
+return bool(link_status)
+                                ```
+
 ***
 
 ### Пример 2
 
-**Плохо:**
-```python
-def has_add_permission(self, request):
-    content_type = request.GET.get('content_type')
-    object_id = request.GET.get('object_id')
-    if content_type and object_id:
-        return True
-    return False
-```
-**Хорошо:**
-```python
-def has_add_permission(self, request):
-    content_type = request.GET.get('content_type')
-    object_id = request.GET.get('object_id')
-    return bool(content_type and object_id)
-```
+
+                                **Плохо:**
+
+                                ```python
+                                def has_add_permission(self, request):
+content_type = request.GET.get('content_type')
+object_id = request.GET.get('object_id')
+if content_type and object_id:
+    return True
+return False
+                                ```
+
+
+                                **Хорошо:**
+
+                                ```python
+                                def has_add_permission(self, request):
+content_type = request.GET.get('content_type')
+object_id = request.GET.get('object_id')
+return bool(content_type and object_id)
+                                ```
+
 ***
 
 ### Пример 3
 
 При сравнении двух значений всегда возвращается `bool`. Поэтому можно не использовать `True` и `False` явно, и высушить код.
 
-**Плохо:**
-```python
-SECONDS_LIMIT = 3600
+
+                                    **Плохо:**
+
+                                    ```python
+                                    SECONDS_LIMIT = 3600
 
 
 def check_visit_length(duration, seconds_limit=SECONDS_LIMIT):
@@ -74,10 +87,13 @@ def main():
     duration = ...
     is_strange_visit = check_visit_length(duration)
     ...
-```
-**Хорошо:**
-```python
-SECONDS_LIMIT = 3600
+                                    ```
+
+
+                                    **Хорошо:**
+
+                                    ```python
+                                    SECONDS_LIMIT = 3600
 
 
 def check_visit_length(duration, seconds_limit=SECONDS_LIMIT):
@@ -90,5 +106,6 @@ def main():
     duration = ...
     is_strange_visit = check_visit_length(duration)
     ...
-```
+                                    ```
+
 

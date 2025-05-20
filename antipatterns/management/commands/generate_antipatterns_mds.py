@@ -37,8 +37,8 @@ class Command(BaseCommand):
             # catalog_file.write(f"# Анти-паттерны\n\n")
             catalog_file.write(dedent(f'''
                 <div class="sticky-header">
-                  <br>
-                  <h1>Анти-паттерны</h1>
+                    <br>
+                    <h1>Анти-паттерны</h1>
                 </div>
                 <br>
             '''))
@@ -46,11 +46,10 @@ class Command(BaseCommand):
             for tag in tags:
                 # catalog_file.write(f"### {tag.name}\n\n")
                 catalog_file.write(dedent(f'''
-                    <div class="sticky-subheader">
-                      <br>
-                      <h3>{tag.name}</h3>
+                    <div class="sticky-antipattern-subheader">
+                        <br>
+                        <h3>{tag.name}</h3>
                     </div>
-                    \n
                 '''))
 
                 for antipattern in antipatterns.filter(tags=tag).order_by('title'):
@@ -69,7 +68,7 @@ class Command(BaseCommand):
                                 <h1 style="margin: 0;">{antipattern_title}</h1>
                                 <p style="margin: 0;">Анти-паттерн</p>
                               </div>
-                            </div>\n
+                            </div>
                         '''))
 
                         if antipattern.description:
@@ -85,8 +84,14 @@ class Command(BaseCommand):
                                 antipattern_md_file.write(f'{example.description}\n\n')
 
                             for snippet in snippets:
-                                antipattern_md_file.write(f'**{snippet.status_label}:**\n')
-                                antipattern_md_file.write(f'```{snippet.lang_ident}\n{snippet.code}\n```\n')
+                                # antipattern_md_file.write(f'**{snippet.status_label}:**\n')
+                                # antipattern_md_file.write(f'```{snippet.lang_ident}\n{snippet.code}\n```\n')
+                                antipattern_md_file.write(dedent(f'''
+                                    \r**{snippet.status_label}:**\n
+                                    \r```{snippet.lang_ident}
+                                    \r{snippet.code}
+                                    \r```\n
+                                '''))
 
                         antipattern_md_file.write('\n')
 

@@ -5,7 +5,6 @@
     <p style="margin: 0;">Анти-паттерн</p>
   </div>
 </div>
-
 ***
 
 Не рекомендуется использовать базовое исключение `Exception` вместо того, чтобы избирательно и целенаправленно отлавливать и обрабатывать ошибки.
@@ -18,16 +17,21 @@
 
 Если ловятся исключения, не связанные с основной идеей защищаемого участка кода, непредвиденные ситуации могут случайно быть подавлены, а программа продолжит работу в некорректном состоянии.
 
-**Плохо:**
-```python
-try:
+
+                                    **Плохо:**
+
+                                    ```python
+                                    try:
     do_something()
 except Exception:
     logging.error('Произошла ошибка')
-```
-**Допустимо:**
-```python
-try:
+                                    ```
+
+
+                                    **Допустимо:**
+
+                                    ```python
+                                    try:
     do_something()
 except FileNotFoundError:
     logging.error('Файл не найден!')
@@ -35,14 +39,18 @@ except PermissionError:
     logging.error('Нет прав доступа к файлу!')
 except Exception as e:
     logging.error(f'Произошла ошибка: {e}.')
-```
-**Хорошо:**
-```python
-try:
+                                    ```
+
+
+                                    **Хорошо:**
+
+                                    ```python
+                                    try:
     do_something()
 except FileNotFoundError:
     logging.error('Файл не найден!')
 except PermissionError:
     logging.error('Нет прав доступа к файлу!')
-```
+                                    ```
+
 
